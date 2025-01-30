@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.loeth.kindly"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.loeth.kindly"
