@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.Flow
 interface PromiseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPromise(promise: PromiseEntity)
+    suspend fun addPromise(promise: PromiseEntity)
 
     @Query("SELECT * FROM promise")
-    fun getAllPromises(): Flow<List<PromiseEntity?>>
+    fun getAllPromises(): Flow<List<PromiseEntity>>
 
     @Query("SELECT * FROM promise WHERE promiseId = :promiseId")
     fun getPromiseById(promiseId: String): Flow<PromiseEntity?>
