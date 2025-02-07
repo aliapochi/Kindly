@@ -41,7 +41,7 @@ import com.loeth.kindly.ui.theme.KindlyTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KindlyTopAppBar(
-    onAddClick: () -> Unit,
+    onAddClick: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
