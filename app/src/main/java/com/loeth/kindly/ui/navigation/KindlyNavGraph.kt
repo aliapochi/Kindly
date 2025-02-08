@@ -1,6 +1,9 @@
 package com.loeth.kindly.ui.navigation
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,16 +27,23 @@ sealed class Screen(val route: String){
 
 @Composable
 fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController = navController) }
+    ) { innerPadding ->
+
     NavHost(
         navController = navController,
         navController.createGraph(
             startDestination = Screen.Dashboard.route
-        ){
+        )
+        {
             composable(Screen.Dashboard.route) { Dashboard() }
             composable(Screen.AddPromise.route) { AddPromise() }
             composable(Screen.AllPromises.route){ AllPromises() }
             composable(Screen.PromiseDetails.route) { PromiseDetail() }
-        }
+        },
+        modifier = Modifier.padding(innerPadding)
     )
+    }
 }
 
