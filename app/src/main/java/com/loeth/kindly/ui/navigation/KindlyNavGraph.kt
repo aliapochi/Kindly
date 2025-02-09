@@ -28,7 +28,7 @@ sealed class Screen(val route: String){
 @Composable
 fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController = navController) }
+        bottomBar = { BottomNavigationBar(navController = navController) },
     ) { innerPadding ->
 
     NavHost(
