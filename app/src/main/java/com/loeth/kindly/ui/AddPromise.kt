@@ -61,6 +61,7 @@ fun AddPromise(viewModel: KindlyViewModel) {
     var description by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Choose Category") }
+    var circularProgressIndicator by remember { mutableStateOf(false)}
 
     Column(
         modifier = Modifier
@@ -85,6 +86,7 @@ fun AddPromise(viewModel: KindlyViewModel) {
 
         Button(
             onClick = {
+                circularProgressIndicator = true
                 val promise = Promise(
                     promiseId = System.currentTimeMillis().toString(), // Unique ID
                     title = title,
