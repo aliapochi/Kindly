@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.ui.AddPromise
 import com.loeth.kindly.ui.AllPromises
 import com.loeth.kindly.ui.Dashboard
@@ -38,7 +40,10 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
         )
         {
             composable(Screen.Dashboard.route) { Dashboard() }
-            composable(Screen.AddPromise.route) { AddPromise() }
+            composable(Screen.AddPromise.route) {
+                val viewModel: KindlyViewModel = hiltViewModel()
+                AddPromise(viewModel)
+            }
             composable(Screen.AllPromises.route){ AllPromises() }
             composable(Screen.PromiseDetails.route) { PromiseDetail() }
         },

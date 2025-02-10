@@ -36,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.loeth.kindly.KindlyViewModel
+import com.loeth.kindly.domain.Promise
 import com.loeth.kindly.ui.theme.KindlyTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -54,72 +56,67 @@ enum class Categories(val item: String) {
 }
 
 @Composable
-fun AddPromise() {
+fun AddPromise(viewModel: KindlyViewModel) {
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("Choose Category") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
             .background(Color.White)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Add Promise",
-                modifier = Modifier.weight(1f),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
-        }
         OutlinedTextField(
-            value = " ",
-            onValueChange = {},
+            value = title,
+            onValueChange = { title = it },
             label = { Text("Promise Title") },
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = " ",
-            onValueChange = {},
+            value = description,
+            onValueChange = { description = it },
             label = { Text("Promise Description") },
             modifier = Modifier.fillMaxWidth()
         )
-        //Due Date
-        SelectDueDate()
+        SelectDueDate(selectedDate) { selectedDate = it }
+        CategoryMenu(selectedCategory) { selectedCategory = it }
 
-        //Category
-        CategoryMenu()
-
-        //Submit Button
-        Row(){
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "Add Promise")
-            }
+        Button(
+            onClick = {
+                val promise = Promise(
+                    promiseId = System.currentTimeMillis().toString(), // Unique ID
+                    title = title,
+                    description = description,
+                    category = selectedCategory,
+                    dueDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        .parse(selectedDate)?.time ?: 0L,
+                    isFulfilled = false
+                )
+                viewModel.addPromise(promise)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Add Promise")
         }
     }
 }
 
 @Composable
-fun CategoryMenu(){
-    var expanded by remember{ mutableStateOf(false)}
-    var selectedItem by remember { mutableStateOf("Choose Category")}
+fun CategoryMenu(selectedItem: String, onCategorySelected: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
 
     Column {
-        Button( onClick = { expanded = true}){
-            Text( text = selectedItem)
+        Button(onClick = { expanded = true }) {
+            Text(text = selectedItem)
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false}
-        ) {
-            Categories.entries.forEach{ category ->
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            Categories.entries.forEach { category ->
                 DropdownMenuItem(
-                    text = { Text(text = category.item)},
+                    text = { Text(text = category.item) },
                     onClick = {
-                        selectedItem = category.item
+                        onCategorySelected(category.item)
                         expanded = false
                     }
                 )
@@ -130,44 +127,41 @@ fun CategoryMenu(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectDueDate(){
-    val context = LocalContext.current
-    val openDialog = remember { mutableStateOf(false)}
-    val selectedDate = remember { mutableStateOf("")}
+fun SelectDueDate(selectedDate: String, onDateSelected: (String) -> Unit) {
+    val openDialog = remember { mutableStateOf(false) }
 
-    Column( modifier = Modifier.padding(16.dp)){
+    Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
-            value = selectedDate.value,
-            onValueChange = { selectedDate.value = it},
-            label = { Text("Select Due Date")},
+            value = selectedDate,
+            onValueChange = {},
+            label = { Text("Select Due Date") },
             readOnly = true,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = "Select Date",
-                    modifier = Modifier.clickable { openDialog.value = true}
+                    modifier = Modifier.clickable { openDialog.value = true }
                 )
             },
             modifier = Modifier.fillMaxWidth()
         )
-        if(openDialog.value){
+        if (openDialog.value) {
             DatePickerDialog(
                 onDismissRequest = { openDialog.value = false },
                 confirmButton = {
-                    TextButton(onClick = { openDialog.value = false}){
+                    TextButton(onClick = { openDialog.value = false }) {
                         Text("Confirm")
                     }
                 }
-            ){
+            ) {
                 val datePickerState = rememberDatePickerState()
-                DatePicker( state = datePickerState)
+                DatePicker(state = datePickerState)
 
-                LaunchedEffect(datePickerState.selectedDateMillis){
-                    datePickerState.selectedDateMillis?.let{ millis ->
+                LaunchedEffect(datePickerState.selectedDateMillis) {
+                    datePickerState.selectedDateMillis?.let { millis ->
                         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                             .format(Date(millis))
-
-                        selectedDate.value = date
+                        onDateSelected(date)
                     }
                 }
             }
@@ -175,10 +169,10 @@ fun SelectDueDate(){
     }
 }
 
+
 @Preview
 @Composable
 fun AddPromisePreview() {
     KindlyTheme {
-        AddPromise()
     }
 }
