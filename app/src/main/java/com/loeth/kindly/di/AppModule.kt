@@ -1,7 +1,11 @@
 package com.loeth.kindly.di
 
+import android.content.Context
+import android.util.Log
+import androidx.room.Room
 import com.loeth.kindly.data.OfflinePromisesRepository
 import com.loeth.kindly.data.PromiseDao
+import com.loeth.kindly.data.PromiseDatabase
 import com.loeth.kindly.data.PromisesRepository
 import com.loeth.kindly.domain.usecases.AddPromiseUseCase
 import com.loeth.kindly.domain.usecases.DeletePromiseUseCase
@@ -11,12 +15,29 @@ import com.loeth.kindly.domain.usecases.UpdatePromiseUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Singleton
 import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): PromiseDatabase {
+        Log.d("DatabaseCheck", "PromiseDatabase is being created")
+        return Room.databaseBuilder(
+            context,
+            PromiseDatabase::class.java,
+            "promise_database"
+        ).build()
+    }
+
+    @Provides
+    fun provideDao(database: PromiseDatabase): PromiseDao {
+        return database.promiseDao()
+    }
 
     @Provides
     @Singleton
