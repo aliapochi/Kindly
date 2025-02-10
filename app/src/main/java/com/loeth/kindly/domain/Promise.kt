@@ -4,11 +4,11 @@ import com.loeth.kindly.data.PromiseEntity
 
 data class Promise(
     val promiseId: String,
-    val title: String,
-    val description: String,
-    val category: String,
-    val dueDate: Long,
-    val isFulfilled: Boolean
+    var title: String,
+    var description: String,
+    var category: String,
+    var dueDate: Long,
+    var isFulfilled: Boolean
 )
 
 fun Promise.toEntity(): PromiseEntity {

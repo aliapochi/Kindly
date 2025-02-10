@@ -29,6 +29,7 @@ sealed class Screen(val route: String){
 
 @Composable
 fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
+    val viewModel: KindlyViewModel = hiltViewModel()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController = navController) },
     ) { innerPadding ->
@@ -41,10 +42,9 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
         {
             composable(Screen.Dashboard.route) { Dashboard() }
             composable(Screen.AddPromise.route) {
-                val viewModel: KindlyViewModel = hiltViewModel()
                 AddPromise(viewModel)
             }
-            composable(Screen.AllPromises.route){ AllPromises() }
+            composable(Screen.AllPromises.route){ AllPromises(viewModel) }
             composable(Screen.PromiseDetails.route) { PromiseDetail() }
         },
         modifier = Modifier.padding(innerPadding)

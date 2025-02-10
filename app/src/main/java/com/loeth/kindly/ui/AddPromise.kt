@@ -3,6 +3,7 @@ package com.loeth.kindly.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,8 +63,9 @@ fun AddPromise(viewModel: KindlyViewModel) {
     var description by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Choose Category") }
-    var circularProgressIndicator by remember { mutableStateOf(false)}
+    val focus = LocalFocusManager.current
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +89,6 @@ fun AddPromise(viewModel: KindlyViewModel) {
 
         Button(
             onClick = {
-                circularProgressIndicator = true
                 val promise = Promise(
                     promiseId = System.currentTimeMillis().toString(), // Unique ID
                     title = title,
@@ -96,12 +98,17 @@ fun AddPromise(viewModel: KindlyViewModel) {
                         .parse(selectedDate)?.time ?: 0L,
                     isFulfilled = false
                 )
+                focus.clearFocus(force = true)
                 viewModel.addPromise(promise)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Add Promise")
         }
+    }
+        val isLoading = viewModel.inProgress.value
+        if (isLoading)
+            CommonProgressSpinner()
     }
 }
 
