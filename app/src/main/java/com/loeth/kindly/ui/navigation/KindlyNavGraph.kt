@@ -44,8 +44,10 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
             composable(Screen.AddPromise.route) {
                 AddPromise(viewModel)
             }
-            composable(Screen.AllPromises.route){ AllPromises(viewModel) }
-            composable(Screen.PromiseDetails.route) { PromiseDetail() }
+            composable(Screen.AllPromises.route){ AllPromises(viewModel, navController) }
+            composable(Screen.PromiseDetails.createRoute(promiseId = "{promiseId}")) { backStackEntry ->
+                val promiseId = backStackEntry.arguments?.getString("promiseId")
+                PromiseDetail(promiseId!!, viewModel) }
         },
         modifier = Modifier.padding(innerPadding)
     )

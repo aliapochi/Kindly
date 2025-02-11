@@ -1,5 +1,6 @@
 package com.loeth.kindly.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +20,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
+import com.loeth.kindly.ui.navigation.Screen
 
 @Composable
-fun AllPromises(viewModel: KindlyViewModel) {
+fun AllPromises(viewModel: KindlyViewModel, navController: NavHostController) {
     val promises by viewModel.promises.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -40,7 +44,7 @@ fun AllPromises(viewModel: KindlyViewModel) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(promises) { promise ->
-                    PromiseCard(promise)
+                    PromiseCard(promise, navController, viewModel)
                 }
             }
         }
@@ -48,11 +52,13 @@ fun AllPromises(viewModel: KindlyViewModel) {
 }
 
 @Composable
-fun PromiseCard(promise: Promise) {
+fun PromiseCard(promise: Promise, navController: NavHostController, viewModel: KindlyViewModel) {
+    val formatedDate = viewModel.formatDate(promise.dueDate)
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable{ navController.navigate(Screen.PromiseDetails.createRoute(promise.promiseId)) },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -63,7 +69,7 @@ fun PromiseCard(promise: Promise) {
             Text(text = promise.title, style = MaterialTheme.typography.titleMedium)
             Text(text = promise.category, style = MaterialTheme.typography.bodyMedium)
             Text(
-                text = "Due Date : ${promise.dueDate}",
+                text = "Due Date : $formatedDate",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(

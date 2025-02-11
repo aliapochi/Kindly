@@ -14,6 +14,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @HiltViewModel
 class KindlyViewModel @Inject constructor(
@@ -40,6 +43,11 @@ class KindlyViewModel @Inject constructor(
                 _promises.value = promises
             }
         }
+    }
+
+    fun formatDate(timeStamp: Long): String{
+        val stf = SimpleDateFormat("EEE, d MMM yyyy", Locale.getDefault())
+        return stf.format(Date(timeStamp))
     }
 
     fun getPromiseById(promiseId: String) = getPromiseByIdUseCase(promiseId)

@@ -168,9 +168,13 @@ fun SelectDueDate(selectedDate: String, onDateSelected: (String) -> Unit) {
 
                 LaunchedEffect(datePickerState.selectedDateMillis) {
                     datePickerState.selectedDateMillis?.let { millis ->
-                        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            .format(Date(millis))
-                        onDateSelected(date)
+                        val today = System.currentTimeMillis()
+                        if(millis >= today){
+                            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                .format(Date(millis))
+                            onDateSelected(date)
+                        }
+
                     }
                 }
             }
