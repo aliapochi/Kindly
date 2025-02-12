@@ -7,7 +7,7 @@ import javax.inject.Inject
 class DeletePromiseUseCase @Inject constructor(
     private val promisesRepository: PromisesRepository
 ) {
-    suspend operator fun invoke(promise: Promise) {
-        promisesRepository.deletePromise(promise)
+    suspend operator fun invoke(promiseId: String) {
+        promisesRepository.deletePromise(promiseId)
     }
 }

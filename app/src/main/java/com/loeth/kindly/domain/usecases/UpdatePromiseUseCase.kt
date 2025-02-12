@@ -7,7 +7,7 @@ import javax.inject.Inject
 class UpdatePromiseUseCase @Inject constructor(
     private val promisesRepository: PromisesRepository
 ) {
-    suspend operator fun invoke(promise: Promise) {
-        promisesRepository.updatePromise(promise)
+    suspend operator fun invoke(promiseId: String, isFulfilled: Boolean) {
+        promisesRepository.updatePromise(promiseId, isFulfilled)
     }
 }

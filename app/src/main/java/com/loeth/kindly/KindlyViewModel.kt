@@ -1,5 +1,6 @@
 package com.loeth.kindly
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,10 +31,10 @@ class KindlyViewModel @Inject constructor(
     val inProgress = mutableStateOf(false)
 
     private val _promises = MutableStateFlow<List<Promise>>(emptyList())
-            val promises: StateFlow<List<Promise>> = _promises
+    val promises: StateFlow<List<Promise>> = _promises
 
 
-    init{
+    init {
         loadPromises()
     }
 
@@ -45,7 +46,24 @@ class KindlyViewModel @Inject constructor(
         }
     }
 
-    fun formatDate(timeStamp: Long): String{
+    fun markAsFulfilled(promiseId: String) {
+        viewModelScope.launch {
+            try {
+                updatePromiseUseCase(promiseId, true)//Update promise to fulfilled into DB
+
+                //Update UI
+                _promises.value = _promises.value.map { promise ->
+                    if (promise.promiseId == promiseId) promise.copy(isFulfilled = true) else promise
+                }
+
+            } catch (e: Exception) {
+                Log.e("KindlyViewModel", "Error marking promise as fulfilled: ${e.message}", e)
+            }
+
+        }
+    }
+
+    fun formatDate(timeStamp: Long): String {
         val stf = SimpleDateFormat("EEE, d MMM yyyy", Locale.getDefault())
         return stf.format(Date(timeStamp))
     }
@@ -68,15 +86,14 @@ class KindlyViewModel @Inject constructor(
 
     }
 
-    fun updatePromise(promise: Promise) {
+    fun deletePromise(promiseId: String) {
         viewModelScope.launch {
-            updatePromiseUseCase(promise)
-        }
-    }
-
-    fun deletePromise(promise: Promise) {
-        viewModelScope.launch {
-            deletePromiseUseCase(promise)
+            try {
+                deletePromiseUseCase(promiseId)
+                _promises.value = _promises.value.filter { it.promiseId != promiseId}
+            }catch (e: Exception) {
+                Log.e("KindlyViewModel", "Error deleting promise: ${e.message}", e)
+            }
         }
     }
 

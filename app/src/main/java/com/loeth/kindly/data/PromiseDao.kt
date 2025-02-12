@@ -20,11 +20,11 @@ interface PromiseDao {
     @Query("SELECT * FROM promise WHERE promiseId = :promiseId")
     fun getPromiseById(promiseId: String): Flow<PromiseEntity?>
 
-    @Update
-    suspend fun updatePromise(promise: PromiseEntity)
+    @Query("UPDATE promise SET isFulfilled = :isFulfilled WHERE promiseId = :promiseId")
+    suspend fun updatePromise(promiseId: String, isFulfilled: Boolean)
 
-    @Delete
-    suspend fun deletePromise(promise: PromiseEntity)
+    @Query("DELETE FROM promise WHERE promiseId = :promiseId")
+    suspend fun deletePromise(promiseId: String)
 
 
 }

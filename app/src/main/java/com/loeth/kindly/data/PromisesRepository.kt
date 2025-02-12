@@ -10,8 +10,8 @@ interface PromisesRepository {
 
     suspend fun addPromise(promise: Promise)
 
-    suspend fun updatePromise(promise: Promise)
+    suspend fun updatePromise(promiseId: String, isFulfilled: Boolean)
 
-    suspend fun deletePromise(promise: Promise)
+    suspend fun deletePromise(promiseId: String)
 
 }

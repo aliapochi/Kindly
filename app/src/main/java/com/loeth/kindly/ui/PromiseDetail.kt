@@ -2,7 +2,13 @@ package com.loeth.kindly.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +39,10 @@ fun PromiseDetail(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            IconButton(onClick = {viewModel.deletePromise(promiseId)})
+            {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Promise")
+            }
             promise?.let { promise ->
                 Text(
                     text = promise.title,
@@ -63,6 +73,17 @@ fun PromiseDetail(
                 Text(
                     text = "Status:  ${if (promise.isFulfilled) "Fulfilled" else "Pending"}",
                     style = MaterialTheme.typography.bodyMedium)
+            }
+            SpaceBetween()
+            Button(
+                onClick = {
+                    viewModel.markAsFulfilled(promiseId)
+                },
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                shape = MaterialTheme.shapes.medium,
+                enabled = !promise!!.isFulfilled
+            ){
+                Text(text = if (promise!!.isFulfilled) "Fulfilled" else "Mark as Fulfilled")
             }
 
         }

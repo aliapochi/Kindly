@@ -22,11 +22,11 @@ class OfflinePromisesRepository(private val promiseDao: PromiseDao) : PromisesRe
         promiseDao.addPromise(promise.toEntity()) // Convert to entity before saving
     }
 
-    override suspend fun updatePromise(promise: Promise) {
-        promiseDao.updatePromise(promise.toEntity()) // Convert to entity before updating
+    override suspend fun updatePromise(promiseId: String, isFulfilled: Boolean) {
+        promiseDao.updatePromise(promiseId, isFulfilled) // Convert to entity before updating
     }
 
-    override suspend fun deletePromise(promise: Promise) {
-        promiseDao.deletePromise(promise.toEntity()) // Convert to entity before deleting
+    override suspend fun deletePromise(promiseId: String) {
+        promiseDao.deletePromise(promiseId) // Convert to entity before deleting
     }
 }
