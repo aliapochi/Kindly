@@ -47,7 +47,7 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
             composable(Screen.AllPromises.route){ AllPromises(viewModel, navController) }
             composable(Screen.PromiseDetails.createRoute(promiseId = "{promiseId}")) { backStackEntry ->
                 val promiseId = backStackEntry.arguments?.getString("promiseId")
-                PromiseDetail(promiseId!!, viewModel) }
+                PromiseDetail(promiseId!!, viewModel, onDeleteSuccess = { navController.popBackStack() } ) }
         },
         modifier = Modifier.padding(innerPadding)
     )

@@ -1,5 +1,6 @@
 package com.loeth.kindly.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +66,8 @@ fun AddPromise(viewModel: KindlyViewModel) {
     var selectedDate by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Choose Category") }
     val focus = LocalFocusManager.current
+    val context = LocalContext.current
+    val promiseAddedEvent by viewModel.promiseAddedEvent.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
     Column(
@@ -109,6 +113,12 @@ fun AddPromise(viewModel: KindlyViewModel) {
         val isLoading = viewModel.inProgress.value
         if (isLoading)
             CommonProgressSpinner()
+    }
+    LaunchedEffect(promiseAddedEvent) {
+        if (promiseAddedEvent) {
+            Toast.makeText(context, "Promise Added", Toast.LENGTH_SHORT).show()
+            viewModel.resetPromiseAddedEvent()
+        }
     }
 }
 

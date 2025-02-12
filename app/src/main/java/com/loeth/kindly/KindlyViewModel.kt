@@ -1,7 +1,9 @@
 package com.loeth.kindly
 
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loeth.kindly.domain.Promise
@@ -32,6 +34,12 @@ class KindlyViewModel @Inject constructor(
 
     private val _promises = MutableStateFlow<List<Promise>>(emptyList())
     val promises: StateFlow<List<Promise>> = _promises
+
+    private val _promiseAddedEvent = MutableStateFlow(false)
+    val promiseAddedEvent: StateFlow<Boolean> = _promiseAddedEvent
+
+    var showDeleteSuccess by mutableStateOf(false)
+    var showDeleteConfirmation by mutableStateOf(false)
 
 
     init {
@@ -73,24 +81,30 @@ class KindlyViewModel @Inject constructor(
     fun addPromise(promise: Promise) {
         inProgress.value = true
         viewModelScope.launch {
-            addPromisesUseCase(promise)
-
+            try{
+                addPromisesUseCase(promise)
+                _promiseAddedEvent.value = true
+            }catch (e: Exception){
+                Log.e("KindlyViewModel", "Error adding promise: ${e.message}", e)
+            }
             inProgress.value = false
 
-            promise.title = ""
-            promise.description = ""
-            promise.category = ""
-            promise.dueDate = 0
-
         }
-
     }
+    fun resetPromiseAddedEvent() {
+        _promiseAddedEvent.value = false
+    }
+
 
     fun deletePromise(promiseId: String) {
         viewModelScope.launch {
             try {
                 deletePromiseUseCase(promiseId)
-                _promises.value = _promises.value.filter { it.promiseId != promiseId}
+
+                _promises.value = _promises.value.filter { it.promiseId != promiseId}//Update UI
+
+                showDeleteSuccess = true // Show the delete success message
+
             }catch (e: Exception) {
                 Log.e("KindlyViewModel", "Error deleting promise: ${e.message}", e)
             }
