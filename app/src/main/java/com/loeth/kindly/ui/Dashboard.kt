@@ -2,6 +2,7 @@ package com.loeth.kindly.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,10 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,21 +41,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.R
+import com.loeth.kindly.ui.navigation.Screen
 import com.loeth.kindly.ui.theme.KindlyTheme
+import java.time.Instant
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import java.util.Calendar
 
 
 //The general app bar for every screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KindlyTopAppBar(
-    onAddClick: () -> Unit = {},
+    navController: NavHostController
 ) {
     TopAppBar(
         title = {
             Text(
-                text = "My Promises",
+                text = "Dashboard",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp
@@ -63,19 +72,27 @@ fun KindlyTopAppBar(
             )
         },
         actions = {
-            IconButton(onClick = onAddClick) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Promise", tint = Color.White)
+            IconButton(onClick = { navController.navigate(Screen.Notifications.route) }) {
+                Icon(
+                    Icons.Filled.Notifications,
+                    contentDescription = "Notifications",
+                    tint = Color.White
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xFF2196F3)
-        )
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(8.dp)
     )
 
 }
 
 @Composable
-fun Dashboard() {
+fun Dashboard(navController: NavHostController) {
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -86,7 +103,7 @@ fun Dashboard() {
     )
     {
         //Kindly Top App Bar
-        KindlyTopAppBar {}
+        KindlyTopAppBar(navController)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,9 +111,12 @@ fun Dashboard() {
         )
         {
             val viewModel: KindlyViewModel = hiltViewModel()
+
+
+
             ActivePromisesCard(viewModel)
 
-            PromisesDueForTheWeekCard()
+            PromisesDueForTheWeekCard(navController)
 
             RecentActivityCard()
 
@@ -157,7 +177,18 @@ fun ActivePromisesCard(viewModel: KindlyViewModel) {
 }
 
 @Composable
-fun PromisesDueForTheWeekCard() {
+fun PromisesDueForTheWeekCard(navController: NavHostController) {
+
+    val viewModel: KindlyViewModel = hiltViewModel()
+    val totalPromises = viewModel.promises.collectAsState()
+
+    val today = Calendar.getInstance().apply { timeInMillis = System.currentTimeMillis() }
+
+    val promisesDueForTheWeek = totalPromises.value.filter { promise ->
+        val dueDate = Calendar.getInstance().apply { timeInMillis = promise.dueDate }
+        dueDate.after(today) || dueDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,78 +201,65 @@ fun PromisesDueForTheWeekCard() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-        )
-        {
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate("all_promises_screen") },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            )
-            {
+            ) {
                 Text(
                     text = "Due for the Week",
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 24.sp
+                    fontSize = 20.sp
                 )
                 Text(
-                    text = "View All",
-                    fontSize = 14.sp,
+                    text = "See All",
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.Gray
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.dollar),
-                    contentDescription = "dollar",
-                    modifier = Modifier.size(40.dp),
-                    colorFilter = ColorFilter.tint(Color(0xFF2196F3))
-                )
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "Monthly Support", fontWeight = FontWeight.Normal, fontSize = 16.sp)
-                    Text(
-                        text = "Due in 2 days . $250",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 12.sp,
-                        color = Color(0xFFFF5963)
+            promisesDueForTheWeek.forEach { promise ->
+                val dueDate = Calendar.getInstance().apply { timeInMillis = promise.dueDate }
+                val daysLeft = (dueDate.timeInMillis - today.timeInMillis) / (1000 * 60 * 60 * 24)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.dollar),
+                        contentDescription = "dollar",
+                        modifier = Modifier.size(40.dp),
+                        colorFilter = ColorFilter.tint(Color(0xFF2196F3))
                     )
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(text = promise.title, fontWeight = FontWeight.Normal, fontSize = 14.sp)
+                        Text(
+                            text = when {
+                                daysLeft == 1L -> "Due in 1 day"
+                                daysLeft > 1L -> "Due in $daysLeft days"
+                                else -> "Due today"
+                            },
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 10.sp,
+                            color = Color(0xFFFF5963)
+                        )
+                    }
                 }
-
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.belief),
-                    contentDescription = "belief",
-                    modifier = Modifier.size(40.dp)
-                )
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Food Bank Volunteer",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp
-                    )
-                    Text(
-                        text = "Saturday . 2 hours",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 12.sp,
-                        color = Color(0xFF57636C)
-                    )
-                }
-
             }
         }
-
     }
 }
+
+
+
+
 
 @Composable
 fun RecentActivityCard() {
@@ -268,7 +286,7 @@ fun RecentActivityCard() {
                 Text(
                     text = "Recent Activity",
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 24.sp
+                    fontSize = 20.sp
                 )
 
             }
@@ -287,12 +305,12 @@ fun RecentActivityCard() {
                     Text(
                         text = "Community Center Support",
                         fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp
+                        fontSize = 14.sp
                     )
                     Text(
                         text = "Completed yesterday",
                         fontWeight = FontWeight.Normal,
-                        fontSize = 12.sp,
+                        fontSize = 10.sp,
                         color = Color(0xFF249689)
                     )
                 }
@@ -312,12 +330,12 @@ fun RecentActivityCard() {
                     Text(
                         text = "Elderly care visit",
                         fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp
+                        fontSize = 14.sp
                     )
                     Text(
                         text = "Saturday . 2 hours",
                         fontWeight = FontWeight.Normal,
-                        fontSize = 12.sp,
+                        fontSize = 10.sp,
                     )
                 }
 
@@ -352,7 +370,7 @@ fun ImpactSummaryCard() {
                 Text(
                     text = "Impact Summary",
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 24.sp
+                    fontSize = 20.sp
                 )
 
             }
@@ -362,7 +380,7 @@ fun ImpactSummaryCard() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 //Promises Kept
-                Column() {
+                Column {
                     Text(
                         text = "45", fontWeight = FontWeight.SemiBold,
                         fontSize = 28.sp, color = Color(0xFF2196F3)
@@ -370,39 +388,11 @@ fun ImpactSummaryCard() {
                     Text(
                         text = "Promises Kept",
                         fontWeight = FontWeight.Normal,
-                        fontSize = 12.sp, color = Color (0xFF57636C)
+                        fontSize = 10.sp, color = Color(0xFF57636C)
                     )
                 }
-                //Total Support
-                Column() {
-                    Text(
-                        text = "$2.5k", fontWeight = FontWeight.SemiBold,
-                        fontSize = 28.sp, color = Color(0xFF39D2C0)
-                    )
-                    Text(text = "Total Support", fontWeight = FontWeight.Normal,
-                        fontSize = 12.sp, color = Color (0xFF57636C))
-                }
-                //People helped
-                Column() {
-                    Text(
-                        text = "32",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 28.sp,
-                        color = Color(0xFFEE8B60)
-                    )
-                    Text(text = "People Helped", fontWeight = FontWeight.Normal,
-                        fontSize = 12.sp, color = Color (0xFF57636C))
-                }
-
             }
         }
     }
 }
 
-@Preview
-@Composable
-fun DashboardPreview() {
-    KindlyTheme {
-        Dashboard()
-    }
-}

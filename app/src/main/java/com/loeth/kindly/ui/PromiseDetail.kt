@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +27,11 @@ fun PromiseDetail(
     viewModel: KindlyViewModel = hiltViewModel(),
     onDeleteSuccess: () -> Unit
 ) {
+    // Reset delete confirmation when entering screen
+    viewModel.showDeleteConfirmation = false
+
     val promise by viewModel.getPromiseById(promiseId).collectAsState(initial = null)
+
     if (promise == null) {
         Text(
             text = "Promise not found",
@@ -44,64 +47,43 @@ fun PromiseDetail(
         ) {
             IconButton(onClick = {
                 viewModel.showDeleteConfirmation = true
-            })
-            {
+            }) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Promise")
-                DeleteConfirmationDialog(viewModel, promiseId)
             }
-            promise?.let { promise ->
-                Text(
-                    text = promise.title,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            } ?: Text(text = "Promise not found")
+
+            // Display Delete Confirmation Dialog
+            DeleteConfirmationDialog(viewModel, promiseId)
+
+            Text(text = promise!!.title, style = MaterialTheme.typography.titleLarge)
             SpaceBetween()
-            promise?.let { promise ->
-                Text(
-                    text = "Category:  ${promise.category}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            } ?: Text(text = "Promise Category not found")
+
+            Text(text = "Category:  ${promise!!.category}", style = MaterialTheme.typography.bodyMedium)
             SpaceBetween()
-            promise?.let { promise ->
-                Text(
-                    text = "Description:  ${promise.description}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            } ?: Text(text = "Promise description not found")
+
+            Text(text = "Description:  ${promise!!.description}", style = MaterialTheme.typography.bodyMedium)
             SpaceBetween()
-            promise?.let { promise ->
-                Text(
-                    text = "Due Date:  ${viewModel.formatDate(promise.dueDate)}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            } ?: Text(text = "Due date unavailable")
+
+            Text(text = "Due Date:  ${viewModel.formatDate(promise!!.dueDate)}", style = MaterialTheme.typography.bodyMedium)
             SpaceBetween()
-            promise?.let { promise ->
-                Text(
-                    text = "Status:  ${if (promise.isFulfilled) "Fulfilled" else "Pending"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+
+            Text(text = "Status:  ${if (promise!!.isFulfilled) "Fulfilled" else "Pending"}", style = MaterialTheme.typography.bodyMedium)
             SpaceBetween()
+
             Button(
-                onClick = {
-                    viewModel.markAsFulfilled(promiseId)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
+                onClick = { viewModel.markAsFulfilled(promiseId) },
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 shape = MaterialTheme.shapes.medium,
                 enabled = !promise!!.isFulfilled
             ) {
                 Text(text = if (promise!!.isFulfilled) "Fulfilled" else "Mark as Fulfilled")
             }
-
         }
     }
 
+    // Show success dialog and reset state
     DeleteSuccessDialog(viewModel, onDeleteSuccess)
 }
+
 
 @Composable
 fun DeleteSuccessDialog(viewModel: KindlyViewModel, onDeleteSuccess: () -> Unit) {

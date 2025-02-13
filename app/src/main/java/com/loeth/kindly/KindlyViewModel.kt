@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -110,5 +111,32 @@ class KindlyViewModel @Inject constructor(
             }
         }
     }
+
+    fun getStartOfWeek(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek) // Set to Monday (or Sunday based on locale)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    fun getEndOfWeek(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+        calendar.add(Calendar.DAY_OF_WEEK, 6) // End of the week
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        return calendar.timeInMillis
+    }
+
+    fun getDaysUntilDue(dueDate: Long): Int {
+        val currentDate = Calendar.getInstance().timeInMillis
+        val diff = dueDate - currentDate
+        return (diff / (1000 * 60 * 60 * 24)).toInt()
+    }
+
 
 }

@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
 import com.loeth.kindly.ui.navigation.Screen
