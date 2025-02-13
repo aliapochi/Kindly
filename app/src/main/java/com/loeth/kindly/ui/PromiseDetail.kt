@@ -135,17 +135,17 @@ fun DeleteConfirmationDialog(
         AlertDialog(
             onDismissRequest = { viewModel.showDeleteConfirmation = false },
             title = { Text("Delete Promise?") },
-            text = { Text("Are you sure you want to delete this promise? This action cannot be undone!") },
+            text = { Text("Are you sure you want to break your promise? This action cannot be undone!") },
+            dismissButton = {
+                Button(onClick = { viewModel.showDeleteConfirmation = false }) {
+                    Text("Cancel")
+                }
+            },
             confirmButton = {
                 Button(onClick = {
                     viewModel.deletePromise(promiseId)
                 }) {
                     Text("Yes, Delete")
-                }
-            },
-            dismissButton = {
-                Button(onClick = { viewModel.showDeleteConfirmation = false }) {
-                    Text("Cancel")
                 }
             }
         )
