@@ -8,7 +8,8 @@ data class Promise(
     var description: String,
     var category: String,
     var dueDate: Long,
-    var isFulfilled: Boolean
+    var isFulfilled: Boolean,
+    var fulfilledDate: Long = 0L
 )
 
 fun Promise.toEntity(): PromiseEntity {
@@ -18,7 +19,8 @@ fun Promise.toEntity(): PromiseEntity {
         description = this.description,
         category = this.category,
         dueDate = this.dueDate,
-        isFulfilled = this.isFulfilled
+        isFulfilled = this.isFulfilled,
+        fulfilledDate = this.fulfilledDate
     )
 }
 

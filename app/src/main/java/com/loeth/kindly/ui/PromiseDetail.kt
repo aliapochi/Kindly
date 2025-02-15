@@ -1,13 +1,20 @@
 package com.loeth.kindly.ui
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -15,11 +22,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.loeth.kindly.KindlyViewModel
+import com.loeth.kindly.ui.theme.KindlyTheme
 
 @Composable
 fun PromiseDetail(
@@ -33,56 +45,87 @@ fun PromiseDetail(
     val promise by viewModel.getPromiseById(promiseId).collectAsState(initial = null)
 
     if (promise == null) {
-        Text(
-            text = "Promise not found",
+        Box(
             modifier = Modifier.fillMaxSize(),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Promise not found",
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+        }
     } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            IconButton(onClick = {
-                viewModel.showDeleteConfirmation = true
-            }) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Promise")
+            // Top Row for Delete Button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(onClick = { viewModel.showDeleteConfirmation = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Promise",
+                        tint = Color.Red
+                    )
+                }
             }
 
-            // Display Delete Confirmation Dialog
+            // Delete Confirmation Dialog
             DeleteConfirmationDialog(viewModel, promiseId)
 
-            Text(text = promise!!.title, style = MaterialTheme.typography.titleLarge)
-            SpaceBetween()
-
-            Text(text = "Category:  ${promise!!.category}", style = MaterialTheme.typography.bodyMedium)
-            SpaceBetween()
-
-            Text(text = "Description:  ${promise!!.description}", style = MaterialTheme.typography.bodyMedium)
-            SpaceBetween()
-
-            Text(text = "Due Date:  ${viewModel.formatDate(promise!!.dueDate)}", style = MaterialTheme.typography.bodyMedium)
-            SpaceBetween()
-
-            Text(text = "Status:  ${if (promise!!.isFulfilled) "Fulfilled" else "Pending"}", style = MaterialTheme.typography.bodyMedium)
-            SpaceBetween()
-
-            Button(
-                onClick = { viewModel.markAsFulfilled(promiseId) },
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                shape = MaterialTheme.shapes.medium,
-                enabled = !promise!!.isFulfilled
+            // Card for Displaying Details
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                Text(text = if (promise!!.isFulfilled) "Fulfilled" else "Mark as Fulfilled")
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(text = promise!!.title, style = MaterialTheme.typography.titleLarge)
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                    DetailRow("Category", promise!!.category)
+                    DetailRow("Description", promise!!.description)
+                    DetailRow("Due Date", viewModel.formatDate(promise!!.dueDate))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Status: ${if (promise!!.isFulfilled) "Fulfilled" else "Pending"}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (promise!!.isFulfilled) Color(0xFF249689) else Color.Red
+                        )
+
+                        if (!promise!!.isFulfilled) {
+                            Button(
+                                onClick = { viewModel.markAsFulfilled(promiseId) },
+                                shape = MaterialTheme.shapes.medium
+                            ) {
+                                Text("Mark as Fulfilled")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
-    // Show success dialog and reset state
+    // Delete Success Dialog
     DeleteSuccessDialog(viewModel, onDeleteSuccess)
 }
+
 
 
 @Composable
@@ -133,4 +176,25 @@ fun DeleteConfirmationDialog(
         )
     }
 
+}
+@Composable
+fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = "$label:", fontWeight = FontWeight.SemiBold)
+        Text(text = value)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PromiseDetailPreview() {
+    KindlyTheme {
+    PromiseDetail(
+        promiseId = "123",
+        onDeleteSuccess = {}
+    )
+    }
 }

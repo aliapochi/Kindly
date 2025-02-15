@@ -5,10 +5,10 @@ import com.loeth.kindly.domain.Promise
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetAllPromisesUseCase @Inject constructor(
+class GetRecentActivitiesUseCase @Inject constructor(
     private val promisesRepository: PromisesRepository
 ) {
-    operator fun invoke(): Flow<List<Promise>> {
-        return promisesRepository.getAllPromisesStream()
+    operator fun invoke(since: Long): Flow<List<Promise>> {
+        return promisesRepository.getRecentActivities(since)
     }
 }

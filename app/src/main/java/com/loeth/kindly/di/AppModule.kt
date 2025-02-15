@@ -1,7 +1,6 @@
 package com.loeth.kindly.di
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Room
 import com.loeth.kindly.data.OfflinePromisesRepository
 import com.loeth.kindly.data.PromiseDao
@@ -11,6 +10,7 @@ import com.loeth.kindly.domain.usecases.AddPromiseUseCase
 import com.loeth.kindly.domain.usecases.DeletePromiseUseCase
 import com.loeth.kindly.domain.usecases.GetAllPromisesUseCase
 import com.loeth.kindly.domain.usecases.GetPromiseByIdUseCase
+import com.loeth.kindly.domain.usecases.GetRecentActivitiesUseCase
 import com.loeth.kindly.domain.usecases.UpdatePromiseUseCase
 import dagger.Module
 import dagger.Provides
@@ -23,10 +23,10 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): PromiseDatabase {
-        Log.d("DatabaseCheck", "PromiseDatabase is being created")
         return Room.databaseBuilder(
             context,
             PromiseDatabase::class.java,
@@ -63,6 +63,11 @@ object AppModule {
     @Provides
     fun provideUpdatePromiseUseCase(promisesRepository: PromisesRepository): UpdatePromiseUseCase {
         return UpdatePromiseUseCase(promisesRepository)
+    }
+
+    @Provides
+    fun provideUpdateFulfillmentUseCase(promisesRepository: PromisesRepository): GetRecentActivitiesUseCase {
+        return GetRecentActivitiesUseCase(promisesRepository)
     }
 
     @Provides

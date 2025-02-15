@@ -12,6 +12,8 @@ interface PromisesRepository {
 
     suspend fun updatePromise(promiseId: String, isFulfilled: Boolean)
 
+    fun getRecentActivities(since: Long): Flow<List<Promise>>
+
     suspend fun deletePromise(promiseId: String)
 
 }

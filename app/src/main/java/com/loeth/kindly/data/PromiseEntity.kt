@@ -12,7 +12,8 @@ data class PromiseEntity(
     val description: String,
     val category: String,
     val dueDate: Long,
-    val isFulfilled: Boolean
+    val isFulfilled: Boolean,
+    val fulfilledDate: Long? = null
 )
 
 fun PromiseEntity.toDomainModel(): Promise {
@@ -22,6 +23,7 @@ fun PromiseEntity.toDomainModel(): Promise {
         description = this.description,
         category = this.category,
         dueDate = this.dueDate,
-        isFulfilled = this.isFulfilled
+        isFulfilled = this.isFulfilled,
+        fulfilledDate = this.fulfilledDate!!
     )
 }

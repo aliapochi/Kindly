@@ -26,6 +26,14 @@ class OfflinePromisesRepository(private val promiseDao: PromiseDao) : PromisesRe
         promiseDao.updatePromise(promiseId, isFulfilled) // Convert to entity before updating
     }
 
+    override fun getRecentActivities(since: Long): Flow<List<Promise>> {
+        return promiseDao.getRecentActivities(since).map{
+            entities -> entities.map { it.toDomainModel() }
+        }
+    }
+
+
+
     override suspend fun deletePromise(promiseId: String) {
         promiseDao.deletePromise(promiseId) // Convert to entity before deleting
     }

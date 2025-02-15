@@ -26,5 +26,15 @@ interface PromiseDao {
     @Query("DELETE FROM promise WHERE promiseId = :promiseId")
     suspend fun deletePromise(promiseId: String)
 
+    @Query("""
+    SELECT * FROM promise 
+    WHERE isFulfilled = 1 
+    AND fulfilledDate >= :since 
+    ORDER BY fulfilledDate DESC
+""")
+    fun getRecentActivities(since: Long): Flow<List<PromiseEntity>>
+
+
+
 
 }

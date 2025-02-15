@@ -11,6 +11,7 @@ import com.loeth.kindly.domain.usecases.AddPromiseUseCase
 import com.loeth.kindly.domain.usecases.DeletePromiseUseCase
 import com.loeth.kindly.domain.usecases.GetAllPromisesUseCase
 import com.loeth.kindly.domain.usecases.GetPromiseByIdUseCase
+import com.loeth.kindly.domain.usecases.GetRecentActivitiesUseCase
 import com.loeth.kindly.domain.usecases.UpdatePromiseUseCase
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +29,8 @@ class KindlyViewModel @Inject constructor(
     private val getPromiseByIdUseCase: GetPromiseByIdUseCase,
     private val addPromisesUseCase: AddPromiseUseCase,
     private val updatePromiseUseCase: UpdatePromiseUseCase,
-    private val deletePromiseUseCase: DeletePromiseUseCase
+    private val deletePromiseUseCase: DeletePromiseUseCase,
+    private val getRecentActivitiesUseCase: GetRecentActivitiesUseCase
 ) : ViewModel() {
 
     val inProgress = mutableStateOf(false)
@@ -42,6 +44,9 @@ class KindlyViewModel @Inject constructor(
     var showDeleteSuccess by mutableStateOf(false)
     var showDeleteConfirmation by mutableStateOf(false)
 
+    private val _recentActivities = MutableStateFlow<List<Promise>>(emptyList())
+    val recentActivities: StateFlow<List<Promise>> = _recentActivities
+
 
     init {
         loadPromises()
@@ -54,7 +59,14 @@ class KindlyViewModel @Inject constructor(
             }
         }
     }
-
+    fun fetchRecentActivities() {
+        viewModelScope.launch {
+            getRecentActivitiesUseCase(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000)
+                .collect { activities ->
+                    _recentActivities.value = activities
+                }
+        }
+    }
     fun markAsFulfilled(promiseId: String) {
         viewModelScope.launch {
             try {
