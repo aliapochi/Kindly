@@ -18,6 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.ui.theme.KindlyTheme
 
@@ -37,16 +39,19 @@ import com.loeth.kindly.ui.theme.KindlyTheme
 fun PromiseDetail(
     promiseId: String,
     viewModel: KindlyViewModel = hiltViewModel(),
-    onDeleteSuccess: () -> Unit
+    onDeleteSuccess: () -> Unit,
+    navController: NavHostController
 ) {
     // Reset delete confirmation when entering screen
     viewModel.showDeleteConfirmation = false
 
     val promise by viewModel.getPromiseById(promiseId).collectAsState(initial = null)
-
+    Scaffold(
+        topBar = { KindlyTopAppBar(navController, "Promise Details") } // Dynamic title
+    ) {
     if (promise == null) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(it),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -59,7 +64,7 @@ fun PromiseDetail(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(it),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Top Row for Delete Button
@@ -120,6 +125,7 @@ fun PromiseDetail(
                 }
             }
         }
+    }
     }
 
     // Delete Success Dialog
@@ -188,13 +194,4 @@ fun DetailRow(label: String, value: String) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PromiseDetailPreview() {
-    KindlyTheme {
-    PromiseDetail(
-        promiseId = "123",
-        onDeleteSuccess = {}
-    )
-    }
-}
+

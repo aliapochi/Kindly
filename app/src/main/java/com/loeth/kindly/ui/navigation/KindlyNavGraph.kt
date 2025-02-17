@@ -5,7 +5,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -43,12 +42,12 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
         )
         {
             composable(Screen.Dashboard.route) { Dashboard(navController) }
-            composable(Screen.AddPromise.route) { AddPromise(viewModel) }
-            composable(Screen.Notifications.route) { NotificationScreen() }
+            composable(Screen.AddPromise.route) { AddPromise(viewModel, navController) }
+            composable(Screen.Notifications.route) { NotificationScreen(navController) }
             composable(Screen.AllPromises.route){ AllPromises(viewModel, navController) }
             composable(Screen.PromiseDetails.createRoute(promiseId = "{promiseId}")) { backStackEntry ->
                 val promiseId = backStackEntry.arguments?.getString("promiseId")
-                PromiseDetail(promiseId!!, viewModel, onDeleteSuccess = { navController.popBackStack() } ) }
+                PromiseDetail(promiseId!!, viewModel, onDeleteSuccess = { navController.popBackStack() }, navController ) }
         },
         modifier = Modifier.padding(innerPadding)
     )

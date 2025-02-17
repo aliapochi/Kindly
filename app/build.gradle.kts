@@ -70,6 +70,7 @@ dependencies {
     implementation (libs.androidx.hilt.navigation.compose)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.analytics)
+    implementation(libs.androidx.core.splashscreen)
     ksp(libs.hilt.android.compiler)
     implementation(libs.compose.material)
     implementation(libs.androidx.room.runtime)

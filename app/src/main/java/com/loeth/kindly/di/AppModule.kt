@@ -10,6 +10,7 @@ import com.loeth.kindly.domain.usecases.AddPromiseUseCase
 import com.loeth.kindly.domain.usecases.DeletePromiseUseCase
 import com.loeth.kindly.domain.usecases.GetAllPromisesUseCase
 import com.loeth.kindly.domain.usecases.GetPromiseByIdUseCase
+import com.loeth.kindly.domain.usecases.GetPromisesByCategoryUseCase
 import com.loeth.kindly.domain.usecases.GetRecentActivitiesUseCase
 import com.loeth.kindly.domain.usecases.UpdatePromiseUseCase
 import dagger.Module
@@ -48,6 +49,11 @@ object AppModule {
     @Provides
     fun provideGetAllPromisesUseCase(promisesRepository: PromisesRepository): GetAllPromisesUseCase {
         return GetAllPromisesUseCase(promisesRepository)
+    }
+
+    @Provides
+    fun provideGetPromisesByCategoryUseCase(promisesRepository: PromisesRepository): GetPromisesByCategoryUseCase {
+        return GetPromisesByCategoryUseCase(promisesRepository)
     }
 
     @Provides

@@ -14,6 +14,8 @@ interface PromisesRepository {
 
     fun getRecentActivities(since: Long): Flow<List<Promise>>
 
+    fun getPromisesByCategory(category: String): Flow<List<Promise>>
+
     suspend fun deletePromise(promiseId: String)
 
 }

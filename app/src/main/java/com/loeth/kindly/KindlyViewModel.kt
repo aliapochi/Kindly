@@ -16,12 +16,18 @@ import com.loeth.kindly.domain.usecases.UpdatePromiseUseCase
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import android.content.Context
+import android.content.Intent
+import com.loeth.kindly.domain.usecases.GetPromisesByCategoryUseCase
 
 @HiltViewModel
 class KindlyViewModel @Inject constructor(
@@ -30,7 +36,8 @@ class KindlyViewModel @Inject constructor(
     private val addPromisesUseCase: AddPromiseUseCase,
     private val updatePromiseUseCase: UpdatePromiseUseCase,
     private val deletePromiseUseCase: DeletePromiseUseCase,
-    private val getRecentActivitiesUseCase: GetRecentActivitiesUseCase
+    private val getRecentActivitiesUseCase: GetRecentActivitiesUseCase,
+    private val getPromisesByCategoryUseCase: GetPromisesByCategoryUseCase
 ) : ViewModel() {
 
     val inProgress = mutableStateOf(false)
@@ -47,9 +54,38 @@ class KindlyViewModel @Inject constructor(
     private val _recentActivities = MutableStateFlow<List<Promise>>(emptyList())
     val recentActivities: StateFlow<List<Promise>> = _recentActivities
 
+    val educationPromisesCount = getPromisesByCategoryUseCase("Education")
+        .map { promises -> promises.count { it.isFulfilled } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    val emotionalSupportPromisesCount = getPromisesByCategoryUseCase("Emotional Support")
+        .map { promises -> promises.count { it.isFulfilled } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    val healthPromisesCount = getPromisesByCategoryUseCase("Health")
+        .map { promises -> promises.count { it.isFulfilled } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    val othersPromisesCount = getPromisesByCategoryUseCase("Others")
+        .map { promises -> promises.count { it.isFulfilled } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
 
     init {
         loadPromises()
+    }
+
+    val fulfilledPromisesCount: StateFlow<Int> = promises
+        .map { it.count { promise -> promise.isFulfilled } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    private val categories = listOf("Education", "Emotional Support", "Health", "Others", "Finance", "Relationships")
+
+    // Get a dynamic map of category counts
+    val promisesByCategory = categories.associateWith { category ->
+        getPromisesByCategoryUseCase(category)
+            .map { promises -> promises.count { it.isFulfilled } }
+            .stateIn(viewModelScope, SharingStarted.Lazily, 0)
     }
 
     private fun loadPromises() {
@@ -59,6 +95,14 @@ class KindlyViewModel @Inject constructor(
             }
         }
     }
+    fun shareKindly(context: Context, message: String) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, message)
+        }
+        context.startActivity(Intent.createChooser(shareIntent, "Share via"))
+    }
+
     fun fetchRecentActivities() {
         viewModelScope.launch {
             getRecentActivitiesUseCase(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000)

@@ -32,6 +32,11 @@ class OfflinePromisesRepository(private val promiseDao: PromiseDao) : PromisesRe
         }
     }
 
+    override fun getPromisesByCategory(category: String): Flow<List<Promise>> {
+        return promiseDao.getPromisesByCategory(category).map{
+            entities -> entities.map { it.toDomainModel() }
+        }
+    }
 
 
     override suspend fun deletePromise(promiseId: String) {

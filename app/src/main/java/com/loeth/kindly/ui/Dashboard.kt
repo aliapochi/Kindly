@@ -2,9 +2,12 @@ package com.loeth.kindly.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -53,18 +57,19 @@ import java.util.Calendar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KindlyTopAppBar(
-    navController: NavHostController
+    navController: NavHostController,
+    currentScreenTitle: String
 ) {
+
     TopAppBar(
         title = {
             Text(
-                text = "Dashboard",
+                text = currentScreenTitle,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp
                 ),
-                color = Color.White,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                color = MaterialTheme.colorScheme.onPrimary // Ensures visibility
             )
         },
         actions = {
@@ -72,12 +77,12 @@ fun KindlyTopAppBar(
                 Icon(
                     Icons.Filled.Notifications,
                     contentDescription = "Notifications",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onPrimary // Ensures visibility
                 )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFF2196F3)
+            containerColor = MaterialTheme.colorScheme.primary
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -85,37 +90,40 @@ fun KindlyTopAppBar(
             .padding(8.dp)
     )
 
+
 }
 
 @Composable
 fun Dashboard(navController: NavHostController) {
     val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()
-            .background(Color(0xFFFFFFFF))
-            .verticalScroll(scrollState)
-    )
-    {
-        //Kindly Top App Bar
-        KindlyTopAppBar(navController)
+    Scaffold(
+        topBar = { KindlyTopAppBar(navController, "Dashboard") } // Dynamic title
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .padding(it)
+                .fillMaxSize()
+                .background(Color(0xFFFFFFFF))
+                .verticalScroll(scrollState)
         )
         {
-            val viewModel: KindlyViewModel = hiltViewModel()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+            {
+                val viewModel: KindlyViewModel = hiltViewModel()
 
-            ActivePromisesCard(viewModel)
+                ActivePromisesCard(viewModel)
 
-            PromisesDueSoonCard(navController)
+                PromisesDueSoonCard(navController)
 
-            RecentActivityCard(viewModel)
+                RecentActivityCard(viewModel)
 
-            ImpactSummaryCard()
+                ImpactSummaryCard(viewModel)
 
+            }
         }
     }
 }
@@ -237,7 +245,7 @@ fun PromisesDueSoonCard(navController: NavHostController) {
                         Image(
                             painter = painterResource(id = R.drawable.stopclock),
                             contentDescription = "dollar",
-                            modifier = Modifier.size(40.dp),
+                            modifier = Modifier.size(25.dp),
                             colorFilter = ColorFilter.tint(Color(0xFF2196F3))
                         )
 
@@ -341,8 +349,12 @@ fun RecentActivityCard(viewModel: KindlyViewModel) {
 }
 
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ImpactSummaryCard() {
+fun ImpactSummaryCard(viewModel: KindlyViewModel) {
+    val categoryCounts = viewModel.promisesByCategory.mapValues { it.value.collectAsState().value }
+        .filterValues { it > 0 } // Only show categories with count > 0
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -354,41 +366,59 @@ fun ImpactSummaryCard() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-        )
-        {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally // Center everything
+        ) {
+            // Title
+            Text(
+                text = "Impact Summary",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp
             )
-            {
-                Text(
-                    text = "Impact Summary",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp
-                )
 
-            }
-            Row(
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Display categories dynamically
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                //Promises Kept
-                Column {
-                    Text(
-                        text = "45", fontWeight = FontWeight.SemiBold,
-                        fontSize = 28.sp, color = Color(0xFF2196F3)
-                    )
-                    Text(
-                        text = "Promises Kept",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 10.sp, color = Color(0xFF57636C)
-                    )
+                categoryCounts.forEach { (category, count) ->
+                    ImpactCategory(count, category)
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Total promises kept
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "${viewModel.fulfilledPromisesCount.collectAsState().value}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    color = Color(0xFF2196F3)
+                )
+                Text(
+                    text = "Promises Kept",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 12.sp,
+                    color = Color(0xFF57636C)
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun ImpactCategory(count: Int, label: String) {
+    Column(
+        modifier = Modifier
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "$count", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(text = label, fontWeight = FontWeight.Normal, fontSize = 12.sp)
     }
 }
 

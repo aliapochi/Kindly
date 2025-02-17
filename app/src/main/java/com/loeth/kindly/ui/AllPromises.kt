@@ -21,6 +21,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,37 +40,40 @@ import com.loeth.kindly.ui.navigation.Screen
 @Composable
 fun AllPromises(viewModel: KindlyViewModel, navController: NavHostController) {
     val promises by viewModel.promises.collectAsState()
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+    Scaffold(
+        topBar = { KindlyTopAppBar(navController, "All Promises") } // Dynamic title
     ) {
-        if (promises.isEmpty()) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "No promises",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(48.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "No promises yet!",
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                    color = Color.Gray
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(promises) { promise ->
-                    PromiseCard(promise, navController, viewModel)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+            contentAlignment = Alignment.Center
+        ) {
+            if (promises.isEmpty()) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "No promises",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Empty Promises!",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(promises) { promise ->
+                        PromiseCard(promise, navController, viewModel)
+                    }
                 }
             }
         }

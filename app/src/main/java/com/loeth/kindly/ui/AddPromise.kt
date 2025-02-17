@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -28,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -40,12 +42,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.navigation.NavHostController
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
 import com.loeth.kindly.ui.theme.KindlyTheme
@@ -66,7 +72,7 @@ enum class Categories(val item: String) {
 }
 
 @Composable
-fun AddPromise(viewModel: KindlyViewModel) {
+fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("Select Due Date") }
@@ -74,126 +80,223 @@ fun AddPromise(viewModel: KindlyViewModel) {
     val focus = LocalFocusManager.current
     val context = LocalContext.current
     val promiseAddedEvent by viewModel.promiseAddedEvent.collectAsState()
-    val isLoading = viewModel.inProgress.value
+    var isLoading = viewModel.inProgress.value
+    var showAlert by remember { mutableStateOf(false) }
+    var showShareDialog by remember { mutableStateOf(false) }
+    var addedPromise by remember { mutableStateOf<Promise?>(null) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF5F5F5)), // Light gray background
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
+    Scaffold(
+        topBar = { KindlyTopAppBar(navController, "Add A Promise") }
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color(0xFFF5F5F5)),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
             ) {
-                Text(
-                    text = "Add a New Promise",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Promise Title") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Promise Description") },
-                    singleLine = false,
-                    maxLines = 3,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                SelectDueDate(selectedDate) { selectedDate = it }
-
-                CategoryMenu(selectedCategory) { selectedCategory = it }
-
-                Button(
-                    onClick = {
-                        val promise = Promise(
-                            promiseId = System.currentTimeMillis().toString(), // Unique ID
-                            title = title,
-                            description = description,
-                            category = selectedCategory,
-                            dueDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                .parse(selectedDate)?.time ?: 0L,
-                            isFulfilled = false
-                        )
-                        focus.clearFocus(force = true)
-                        viewModel.addPromise(promise)
-                    },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Add Promise", color = Color.White)
+                    Text(
+                        text = "Add a New Promise",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Promise Title") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("Promise Description") },
+                        singleLine = false,
+                        maxLines = 3,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    SelectDueDate(selectedDate) { selectedDate = it }
+
+                    CategoryMenu(selectedCategory) { selectedCategory = it }
+
+                    Button(
+                        onClick = {
+                            if (title.isBlank() || description.isBlank() || selectedDate == "Select Due Date" || selectedCategory == "Choose Category") {
+                                showAlert = true
+                            } else {
+                                val promise = Promise(
+                                    promiseId = System.currentTimeMillis().toString(),
+                                    title = title,
+                                    description = description,
+                                    category = selectedCategory,
+                                    dueDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                        .parse(selectedDate)?.time ?: 0L,
+                                    isFulfilled = false
+                                )
+
+                                isLoading = true  // Show loading while adding
+                                viewModel.addPromise(promise)
+
+                                // Save promise & show share dialog when added successfully
+                                addedPromise = promise
+                                showShareDialog = true
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("Add Promise", color = Color.White)
+                    }
                 }
             }
-        }
 
-        // Loading overlay
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CommonProgressSpinner()
+            // Show AlertDialog if required fields are empty
+            if (showAlert) {
+                AlertDialog(
+                    onDismissRequest = { showAlert = false },
+                    confirmButton = {
+                        TextButton(onClick = { showAlert = false }) {
+                            Text("OK")
+                        }
+                    },
+                    title = { Text("Missing Fields") },
+                    text = { Text("Please fill in all fields before adding a promise.") }
+                )
+            }
+
+            // Share AlertDialog after promise is added
+            if (showShareDialog && addedPromise != null) {
+                AlertDialog(
+                    onDismissRequest = { showShareDialog = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.shareKindly(
+                                context,
+                                """
+    I just added a promise on the Kindly app! 📌
+    
+    ✨ Title: ${addedPromise?.title}
+    📅 Due Date: $selectedDate
+    📂 Category: $selectedCategory
+    
+    You can do that too: [Google Drive Link]
+""".trimIndent()
+                            )
+                            showShareDialog = false
+                        }) {
+                            Text("Share")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showShareDialog = false }) {
+                            Text("Dismiss")
+                        }
+                    },
+                    title = { Text("Promise Added!") },
+                    text = { Text("You have successfully added a new promise. Would you like to share it?") }
+                )
+            }
+
+            // Show loading overlay while adding promise
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CommonProgressSpinner()
+                }
             }
         }
     }
 
+    // Show Toast & Reset Loading State after promise is added
     LaunchedEffect(promiseAddedEvent) {
         if (promiseAddedEvent) {
             Toast.makeText(context, "Promise Added", Toast.LENGTH_SHORT).show()
             viewModel.resetPromiseAddedEvent()
+
+            isLoading = false // Hide loading
         }
     }
 }
 
 @Composable
 fun CategoryMenu(selectedItem: String, onCategorySelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     Column {
         OutlinedButton(
-            onClick = { expanded = true },
+            onClick = { showDialog = true },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = selectedItem)
             Spacer(Modifier.width(8.dp))
             Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            Categories.entries.forEach { category ->
-                DropdownMenuItem(
-                    text = { Text(text = category.item) },
-                    onClick = {
-                        onCategorySelected(category.item)
-                        expanded = false
+
+        if (showDialog) {
+            Dialog(onDismissRequest = { showDialog = false }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0x00000000)) // Semi-transparent background
+                        .clickable { showDialog = false } // Dismiss on outside click
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.White)
+                            .padding(20.dp)
+                    ) {
+                        Text(
+                            text = "Select Category",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+
+                        Categories.entries.forEach { category ->
+                            Text(
+                                text = category.item,
+                                fontSize = 16.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                                    .clickable {
+                                        onCategorySelected(category.item)
+                                        showDialog = false
+                                    }
+                            )
+                        }
                     }
-                )
+                }
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -236,6 +339,7 @@ fun SelectDueDate(selectedDate: String, onDateSelected: (String) -> Unit) {
         }
     }
 }
+
 
 @Preview
 @Composable

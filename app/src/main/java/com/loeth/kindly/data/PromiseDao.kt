@@ -34,7 +34,7 @@ interface PromiseDao {
 """)
     fun getRecentActivities(since: Long): Flow<List<PromiseEntity>>
 
-
-
+    @Query("SELECT * FROM promise WHERE category = :category")
+    fun getPromisesByCategory(category: String): Flow<List<PromiseEntity>>
 
 }
