@@ -28,6 +28,7 @@ import java.util.Locale
 import android.content.Context
 import android.content.Intent
 import com.loeth.kindly.domain.usecases.GetPromisesByCategoryUseCase
+import com.loeth.kindly.ui.Categories
 
 @HiltViewModel
 class KindlyViewModel @Inject constructor(
@@ -54,23 +55,6 @@ class KindlyViewModel @Inject constructor(
     private val _recentActivities = MutableStateFlow<List<Promise>>(emptyList())
     val recentActivities: StateFlow<List<Promise>> = _recentActivities
 
-    val educationPromisesCount = getPromisesByCategoryUseCase("Education")
-        .map { promises -> promises.count { it.isFulfilled } }
-        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
-
-    val emotionalSupportPromisesCount = getPromisesByCategoryUseCase("Emotional Support")
-        .map { promises -> promises.count { it.isFulfilled } }
-        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
-
-    val healthPromisesCount = getPromisesByCategoryUseCase("Health")
-        .map { promises -> promises.count { it.isFulfilled } }
-        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
-
-    val othersPromisesCount = getPromisesByCategoryUseCase("Others")
-        .map { promises -> promises.count { it.isFulfilled } }
-        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
-
-
     init {
         loadPromises()
     }
@@ -79,7 +63,8 @@ class KindlyViewModel @Inject constructor(
         .map { it.count { promise -> promise.isFulfilled } }
         .stateIn(viewModelScope, SharingStarted.Lazily, 0)
 
-    private val categories = listOf("Education", "Emotional Support", "Health", "Others", "Finance", "Relationships")
+    private val categories = Categories.entries.map { it.item }
+
 
     // Get a dynamic map of category counts
     val promisesByCategory = categories.associateWith { category ->

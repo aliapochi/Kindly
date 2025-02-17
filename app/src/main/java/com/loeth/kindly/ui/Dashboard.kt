@@ -69,7 +69,7 @@ fun KindlyTopAppBar(
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp
                 ),
-                color = MaterialTheme.colorScheme.onPrimary // Ensures visibility
+                color = Color.White // Ensures visibility
             )
         },
         actions = {
@@ -77,7 +77,7 @@ fun KindlyTopAppBar(
                 Icon(
                     Icons.Filled.Notifications,
                     contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.onPrimary // Ensures visibility
+                    tint = Color.White // Ensures visibility
                 )
             }
         },
@@ -381,7 +381,7 @@ fun ImpactSummaryCard(viewModel: KindlyViewModel) {
             // Display categories dynamically
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 categoryCounts.forEach { (category, count) ->
                     ImpactCategory(count, category)
@@ -413,7 +413,6 @@ fun ImpactSummaryCard(viewModel: KindlyViewModel) {
 fun ImpactCategory(count: Int, label: String) {
     Column(
         modifier = Modifier
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

@@ -102,7 +102,8 @@ fun PromiseCard(promise: Promise, navController: NavHostController, viewModel: K
             Text(
                 text = promise.title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
             Text(
                 text = promise.category,

@@ -63,7 +63,7 @@ enum class Categories(val item: String) {
     FINANCIAL("Financial"),
     RESOURCES("Resources"),
     TIME("Time"),
-    EMOTIONAL_SUPPORT("EmotionalSupport"),
+    EMOTIONAL_SUPPORT("Emotional Support"),
     HEALTH("Health"),
     EDUCATION("Education"),
     TASK("Task"),
@@ -77,7 +77,6 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
     var description by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("Select Due Date") }
     var selectedCategory by remember { mutableStateOf("Choose Category") }
-    val focus = LocalFocusManager.current
     val context = LocalContext.current
     val promiseAddedEvent by viewModel.promiseAddedEvent.collectAsState()
     var isLoading = viewModel.inProgress.value
