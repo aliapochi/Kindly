@@ -22,8 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -197,7 +194,7 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
     📅 Due Date: $selectedDate
     📂 Category: $selectedCategory
     
-    You can do that too: [Google Drive Link]
+    You can do that too: https://play.google.com/store/apps/details?id=com.loeth.kindly&pcampaignid=web_share
 """.trimIndent()
                             )
                             showShareDialog = false

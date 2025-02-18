@@ -1,6 +1,5 @@
 package com.loeth.kindly.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +48,7 @@ fun KindlyTheme(
 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
+
     }
 
     MaterialTheme(
@@ -58,3 +58,23 @@ fun KindlyTheme(
         content = content
     )
 }
+
+@Composable
+fun KindlyTheme2(
+    darkTheme: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = if (darkTheme) {
+        DarkColorScheme
+    } else {
+        LightColorScheme
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        shapes = Shapes(),
+        content = content
+    )
+}
+
