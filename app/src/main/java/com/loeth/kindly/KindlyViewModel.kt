@@ -26,8 +26,11 @@ import java.util.Date
 import java.util.Locale
 import android.content.Context
 import android.content.Intent
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.loeth.kindly.domain.usecases.GetPromisesByCategoryUseCase
 import com.loeth.kindly.ui.Categories
+import java.util.concurrent.TimeUnit
 
 @HiltViewModel
 class KindlyViewModel @Inject constructor(
@@ -79,6 +82,16 @@ class KindlyViewModel @Inject constructor(
             }
         }
     }
+    //
+
+    fun scheduleReminder(context: Context) {
+        val workRequest = OneTimeWorkRequestBuilder<ReminderWorker>()
+            .setInitialDelay(1, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(workRequest)
+    }
+
     fun shareKindly(context: Context, message: String) {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"

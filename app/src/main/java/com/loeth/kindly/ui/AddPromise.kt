@@ -1,5 +1,6 @@
 package com.loeth.kindly.ui
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -149,6 +150,8 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
 
                                 isLoading = true  // Show loading while adding
                                 viewModel.addPromise(promise)
+
+                                viewModel.scheduleReminder(context) 
 
                                 // Save promise & show share dialog when added successfully
                                 addedPromise = promise

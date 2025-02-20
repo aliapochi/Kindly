@@ -157,7 +157,7 @@ fun ActivePromisesCard(viewModel: KindlyViewModel) {
                         text = totalPromises.value.size.toString(),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 64.sp,
-                        color = Color(0xFF2196F3)
+                        color = Color(0xFF3C97D0)
                     )
                     Text(
                         text = "Ongoing Commitments",
@@ -170,7 +170,7 @@ fun ActivePromisesCard(viewModel: KindlyViewModel) {
                     painter = painterResource(id = R.drawable.handshake),
                     contentDescription = "Handshake",
                     modifier = Modifier.size(40.dp),
-                    colorFilter = ColorFilter.tint(Color(0xFF2196F3))
+                    colorFilter = ColorFilter.tint(Color(0xFF3C97D0))
                 )
             }
         }
@@ -395,7 +395,7 @@ fun ImpactSummaryCard(viewModel: KindlyViewModel) {
                     text = "${viewModel.fulfilledPromisesCount.collectAsState().value}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp,
-                    color = Color(0xFF2196F3)
+                    color = Color(0xFF3C97D0)
                 )
                 Text(
                     text = "Promises Kept",

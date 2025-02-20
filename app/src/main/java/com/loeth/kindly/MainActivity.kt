@@ -4,10 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.google.android.gms.ads.MobileAds
 import com.loeth.kindly.data.PromiseDatabase
 import com.loeth.kindly.ui.navigation.KindlyNavGraph
 import com.loeth.kindly.ui.theme.KindlyTheme2
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -22,6 +26,11 @@ class MainActivity : ComponentActivity() {
             KindlyTheme2 {
                 KindlyNavGraph()
             }
+        }
+        val backgroundScope = CoroutineScope(Dispatchers.IO)
+        backgroundScope.launch {
+            // Initialize the Google Mobile Ads SDK on a background thread.
+            MobileAds.initialize(this@MainActivity) {}
         }
     }
 }

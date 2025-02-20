@@ -57,17 +57,17 @@ fun SplashScreen(navController: NavHostController) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(200.dp) // 🔹 Set a fixed height for the logo container
+                .size(200.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.kindly_logo),
                 contentDescription = "App Logo",
                 modifier = Modifier
-                    .size(300.dp) // 🔹 Standard splash screen logo size
+                    .size(300.dp)
                     .scale(scale.value)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp)) // 🔹 Adds space between logo and text
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Never Forget a Promise Again",
             style = MaterialTheme.typography.titleMedium,
