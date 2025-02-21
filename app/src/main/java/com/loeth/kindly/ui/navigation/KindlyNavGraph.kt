@@ -1,5 +1,6 @@
 package com.loeth.kindly.ui.navigation
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -45,23 +46,30 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
         }
     ) { innerPadding ->
 
-    NavHost(
-        navController = navController,
-        navController.createGraph(
-            startDestination = Screen.SplashScreen.route
-        )
-        {
-            composable(Screen.Dashboard.route) { Dashboard(navController) }
-            composable(Screen.SplashScreen.route) { SplashScreen(navController) }
-            composable(Screen.AddPromise.route) { AddPromise(viewModel, navController) }
-            composable(Screen.Notifications.route) { NotificationScreen(navController) }
-            composable(Screen.AllPromises.route){ AllPromises(viewModel, navController) }
-            composable(Screen.PromiseDetails.createRoute(promiseId = "{promiseId}")) { backStackEntry ->
-                val promiseId = backStackEntry.arguments?.getString("promiseId")
-                PromiseDetail(promiseId!!, viewModel, onDeleteSuccess = { navController.popBackStack() }, navController ) }
-        },
-        modifier = Modifier.padding(innerPadding)
-    )
+       Row(modifier = Modifier.padding(innerPadding)) {
+            NavHost(
+                navController = navController,
+                navController.createGraph(
+                    startDestination = Screen.SplashScreen.route
+                )
+                {
+                    composable(Screen.Dashboard.route) { Dashboard(navController) }
+                    composable(Screen.SplashScreen.route) { SplashScreen(navController) }
+                    composable(Screen.AddPromise.route) { AddPromise(viewModel, navController) }
+                    composable(Screen.Notifications.route) { NotificationScreen(navController) }
+                    composable(Screen.AllPromises.route) { AllPromises(viewModel, navController) }
+                    composable(Screen.PromiseDetails.createRoute(promiseId = "{promiseId}")) { backStackEntry ->
+                        val promiseId = backStackEntry.arguments?.getString("promiseId")
+                        PromiseDetail(
+                            promiseId!!,
+                            viewModel,
+                            onDeleteSuccess = { navController.popBackStack() },
+                            navController
+                        )
+                    }
+                }
+            )
+        }
     }
 }
 

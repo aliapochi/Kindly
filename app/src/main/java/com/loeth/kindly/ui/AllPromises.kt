@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
 import com.loeth.kindly.ui.navigation.Screen

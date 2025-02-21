@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.R
 import com.loeth.kindly.ui.navigation.Screen
@@ -121,6 +122,7 @@ fun Dashboard(navController: NavHostController) {
                 RecentActivityCard(viewModel)
 
                 ImpactSummaryCard(viewModel)
+
 
             }
         }

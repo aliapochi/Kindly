@@ -26,11 +26,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 
 @Composable
@@ -44,6 +46,7 @@ fun PromiseDetail(
     viewModel.showDeleteConfirmation = false
 
     val promise by viewModel.getPromiseById(promiseId).collectAsState(initial = null)
+    val context = LocalContext.current
     Scaffold(
         topBar = { KindlyTopAppBar(navController, "Promise Details") } // Dynamic title
     ) {
@@ -120,6 +123,9 @@ fun PromiseDetail(
                             }
                         }
                     }
+                    BannerAd()
+                    //InterstitialAd(context = context)
+
                 }
             }
         }

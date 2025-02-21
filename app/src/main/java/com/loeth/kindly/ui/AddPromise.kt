@@ -1,6 +1,5 @@
 package com.loeth.kindly.ui
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,8 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
+import com.loeth.kindly.showInterstitialAd
 import com.loeth.kindly.ui.theme.KindlyTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -165,6 +166,8 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
                     ) {
                         Text("Add Promise", color = Color.White)
                     }
+                    //Spacer(modifier = Modifier.height(16.dp))
+
                 }
             }
 
@@ -206,7 +209,10 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showShareDialog = false }) {
+                        TextButton(onClick = {
+                            showShareDialog = false
+                            showInterstitialAd(context){}
+                        }) {
                             Text("Dismiss")
                         }
                     },
