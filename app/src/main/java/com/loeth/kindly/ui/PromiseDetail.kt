@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 
 @Composable
@@ -123,8 +122,6 @@ fun PromiseDetail(
                             }
                         }
                     }
-                    BannerAd()
-                    //InterstitialAd(context = context)
 
                 }
             }

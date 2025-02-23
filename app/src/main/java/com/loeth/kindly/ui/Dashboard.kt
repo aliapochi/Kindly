@@ -1,5 +1,8 @@
 package com.loeth.kindly.ui
 
+import android.app.Activity
+import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,16 +34,21 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,6 +58,7 @@ import androidx.navigation.NavHostController
 import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.R
+import com.loeth.kindly.showInterstitialAd
 import com.loeth.kindly.ui.navigation.Screen
 import java.util.Calendar
 
@@ -95,6 +105,8 @@ fun KindlyTopAppBar(
 
 @Composable
 fun Dashboard(navController: NavHostController) {
+    val context = LocalContext.current
+    ExitDialog(context)
     val scrollState = rememberScrollState()
     Scaffold(
         topBar = { KindlyTopAppBar(navController, "Dashboard") } // Dynamic title
@@ -422,3 +434,37 @@ fun ImpactCategory(count: Int, label: String) {
     }
 }
 
+@Composable
+fun ExitDialog(context: Context){
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    // Handle back button behavior
+    BackHandler {
+        showExitDialog = true
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text("Exit App?") },
+            text = { Text("Are you sure you want to exit?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showExitDialog = false
+                    showInterstitialAd(context) {
+                        (context as? Activity)?.finish()
+                    }
+                }) {
+                    Text("Exit")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+
+}
