@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -78,6 +79,21 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.play.services.ads)
+
+    testImplementation (libs.junit)
+    testImplementation(libs.junit)
+    testImplementation (libs.mockito.core)
+    testImplementation (libs.androidx.core.testing)
+    testImplementation (libs.mockito.mockito.inline)
+    testImplementation (libs.androidx.work.testing)
+    testImplementation (libs.kotlinx.coroutines.test)
+
+    debugImplementation(libs.ui.test.manifest)
+
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.android.compiler.v237)
+    androidTestImplementation (libs.kotlinx.coroutines.test)
+    androidTestImplementation (libs.junit)
 
 
 
