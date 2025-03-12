@@ -15,11 +15,12 @@ android {
     defaultConfig {
         applicationId = "com.loeth.kindly"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -52,8 +53,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    testImplementation(libs.junit.junit)
+    implementation(libs.androidx.multidex)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -91,7 +91,7 @@ dependencies {
     debugImplementation(libs.ui.test.manifest)
 
     androidTestImplementation(libs.hilt.android.testing)
-    kspAndroidTest(libs.hilt.android.compiler.v237)
+    kspAndroidTest(libs.hilt.android.compiler)
     androidTestImplementation (libs.kotlinx.coroutines.test)
     androidTestImplementation (libs.junit)
 

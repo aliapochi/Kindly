@@ -1,12 +1,16 @@
 package com.loeth.kindly.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,11 +54,15 @@ fun BottomNavigationBar(navController: NavHostController){
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry.value?.destination?.route
 
-    Column {
-        BannerAd()
+    Column(
+        modifier = Modifier.fillMaxWidth().background(Color.Red),
+        verticalArrangement = Arrangement.Bottom // Ensures items stick to the bottom
+    ) {
+        BannerAd(modifier = Modifier.fillMaxWidth())
         NavigationBar(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            containerColor = Color.Green,
         ) {
             bottomNavItems.forEach { item ->
                 NavigationBarItem(

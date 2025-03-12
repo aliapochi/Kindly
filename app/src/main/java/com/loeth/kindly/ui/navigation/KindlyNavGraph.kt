@@ -39,11 +39,11 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     Scaffold(
-        bottomBar = {
-            if (currentRoute != Screen.SplashScreen.route) {
-                BottomNavigationBar(navController)
-            }
-        }
+//        bottomBar = {
+//            if (currentRoute != Screen.SplashScreen.route) {
+//                BottomNavigationBar(navController)
+//            }
+//        }
     ) { innerPadding ->
 
        Row(modifier = Modifier.padding(innerPadding)) {

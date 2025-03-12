@@ -24,8 +24,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+            scheduleDailyMessage(applicationContext)
+
         setContent {
             KindlyTheme2 {
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     RequestNotificationPermission()
                 }
@@ -37,6 +40,9 @@ class MainActivity : ComponentActivity() {
             // Initialize the Google Mobile Ads SDK on a background thread.
             MobileAds.initialize(this@MainActivity) {}
         }
+
     }
+
+
 }
 

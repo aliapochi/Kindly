@@ -33,16 +33,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
+import com.loeth.kindly.ui.navigation.BottomNavigationBar
 import com.loeth.kindly.ui.navigation.Screen
 
 @Composable
 fun AllPromises(viewModel: KindlyViewModel, navController: NavHostController) {
     val promises by viewModel.promises.collectAsState()
     Scaffold(
-        topBar = { KindlyTopAppBar(navController, "All Promises") } // Dynamic title
+        topBar = { KindlyTopAppBar(navController, "All Promises") },
+        bottomBar = { BottomNavigationBar(navController) }
     ) {
         Box(
             modifier = Modifier
@@ -64,6 +65,15 @@ fun AllPromises(viewModel: KindlyViewModel, navController: NavHostController) {
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Add a promise to get started.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.clickable {
+                            navController.navigate(Screen.AddPromise.route)
+                        }
                     )
                 }
             } else {

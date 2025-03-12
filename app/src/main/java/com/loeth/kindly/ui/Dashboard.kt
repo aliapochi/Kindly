@@ -59,6 +59,7 @@ import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.R
 import com.loeth.kindly.showInterstitialAd
+import com.loeth.kindly.ui.navigation.BottomNavigationBar
 import com.loeth.kindly.ui.navigation.Screen
 import java.util.Calendar
 
@@ -109,7 +110,9 @@ fun Dashboard(navController: NavHostController) {
     ExitDialog(context)
     val scrollState = rememberScrollState()
     Scaffold(
-        topBar = { KindlyTopAppBar(navController, "Dashboard") } // Dynamic title
+        topBar = { KindlyTopAppBar(navController, "Dashboard") }, // Dynamic title
+        bottomBar = { BottomNavigationBar(navController) }
+
     ) {
         Column(
             modifier = Modifier
@@ -435,7 +438,7 @@ fun ImpactCategory(count: Int, label: String) {
 }
 
 @Composable
-fun ExitDialog(context: Context){
+fun ExitDialog(context: Context) {
     var showExitDialog by remember { mutableStateOf(false) }
 
     // Handle back button behavior
@@ -451,9 +454,7 @@ fun ExitDialog(context: Context){
             confirmButton = {
                 TextButton(onClick = {
                     showExitDialog = false
-                    showInterstitialAd(context) {
-                        (context as? Activity)?.finish()
-                    }
+                    (context as? Activity)?.finish()
                 }) {
                     Text("Exit")
                 }
@@ -465,6 +466,4 @@ fun ExitDialog(context: Context){
             }
         )
     }
-
-
 }

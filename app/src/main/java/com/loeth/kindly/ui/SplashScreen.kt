@@ -69,7 +69,7 @@ fun SplashScreen(navController: NavHostController) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Never Forget a Promise Again",
+            text = "Never Forget a Promise Again!",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = Color.White

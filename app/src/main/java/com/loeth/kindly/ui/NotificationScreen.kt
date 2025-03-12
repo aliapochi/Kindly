@@ -10,11 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.loeth.kindly.ui.navigation.BottomNavigationBar
 
 @Composable
 fun NotificationScreen(navController: NavHostController){
     Scaffold(
-        topBar = { KindlyTopAppBar(navController, "Notification") } // Dynamic title
+        topBar = { KindlyTopAppBar(navController, "Notification") },
+        bottomBar = { BottomNavigationBar(navController) }
     ) {
     Box(modifier = Modifier.fillMaxSize().padding(it)){
         Text(

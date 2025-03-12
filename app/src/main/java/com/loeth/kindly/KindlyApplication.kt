@@ -1,9 +1,13 @@
 package com.loeth.kindly
 
 import android.app.Application
+import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class KindlyApplication : Application() {
-    //val database by lazy { PromiseDatabase.getDatabase(this) }
+    override fun onCreate() {
+        super.onCreate()
+        FirebaseApp.initializeApp(this)
+    }
 }

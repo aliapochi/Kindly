@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.loeth.kindly.KindlyViewModel
+import com.loeth.kindly.ui.navigation.BottomNavigationBar
 
 @Composable
 fun PromiseDetail(
@@ -47,7 +48,8 @@ fun PromiseDetail(
     val promise by viewModel.getPromiseById(promiseId).collectAsState(initial = null)
     val context = LocalContext.current
     Scaffold(
-        topBar = { KindlyTopAppBar(navController, "Promise Details") } // Dynamic title
+        topBar = { KindlyTopAppBar(navController, "Promise Details") },
+        bottomBar = { BottomNavigationBar(navController) }
     ) {
     if (promise == null) {
         Box(

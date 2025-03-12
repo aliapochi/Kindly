@@ -49,10 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import com.loeth.kindly.BannerAd
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
 import com.loeth.kindly.showInterstitialAd
+import com.loeth.kindly.ui.navigation.BottomNavigationBar
 import com.loeth.kindly.ui.theme.KindlyTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -82,11 +82,10 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
     var showAlert by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
     var addedPromise by remember { mutableStateOf<Promise?>(null) }
-    val dueDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        .parse(selectedDate)?.time ?: 0L
 
     Scaffold(
-        topBar = { KindlyTopAppBar(navController, "Add A Promise") }
+        topBar = { KindlyTopAppBar(navController, "Add A Promise") },
+        bottomBar = { BottomNavigationBar(navController) }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -156,7 +155,12 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
 
                                 viewModel.scheduleReminder(context)
 
-                                // Save promise & show share dialog when added successfully
+                                // Save promise, show share dialog and reset all fields when added successfully
+                                title = ""
+                                description = ""
+                                selectedDate = "Select Due Date"
+                                selectedCategory = "Choose Category"
+                                isLoading = false
                                 addedPromise = promise
                                 showShareDialog = true
                             }
@@ -213,7 +217,7 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
                     dismissButton = {
                         TextButton(onClick = {
                             showShareDialog = false
-                            showInterstitialAd(context){}
+                            //showInterstitialAd(context){}
                         }) {
                             Text("Dismiss")
                         }
