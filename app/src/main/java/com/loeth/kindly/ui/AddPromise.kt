@@ -82,6 +82,12 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
     var showAlert by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
     var addedPromise by remember { mutableStateOf<Promise?>(null) }
+    val dueDate = if (selectedDate == "Select Due Date") {
+        0L // Default value if no date is selected
+    } else {
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            .parse(selectedDate)?.time ?: 0L
+    }
 
     Scaffold(
         topBar = { KindlyTopAppBar(navController, "Add A Promise") },
@@ -154,6 +160,7 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
                                 viewModel.addPromise(promise)
 
                                 viewModel.scheduleReminder(context)
+                                viewModel.scheduleDueDateReminder(context, dueDate)
 
                                 // Save promise, show share dialog and reset all fields when added successfully
                                 title = ""

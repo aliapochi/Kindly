@@ -98,6 +98,8 @@ class NotificationReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
+
+
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.kindly_logo)
             .setContentTitle("Daily Inspiration 🌟")
@@ -112,24 +114,6 @@ class NotificationReceiver : BroadcastReceiver() {
         sharedPreferences.edit().putInt("last_message_index", nextIndex).apply()
     }
 }
-//
-//fun scheduleDailyMessage(context: Context) {
-//    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//    val intent = Intent(context, NotificationReceiver::class.java)
-//    val pendingIntent = PendingIntent.getBroadcast(
-//        context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//    )
-//
-//    val triggerTime = System.currentTimeMillis() + 15 * 1000L // First run in 15 sec
-//
-//    alarmManager.setRepeating(
-//        AlarmManager.RTC_WAKEUP,
-//        triggerTime,
-//        15 * 1000L, // Repeat every 15 seconds
-//        pendingIntent
-//    )
-//}
-
 
 fun scheduleDailyMessage(context: Context) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -156,4 +140,52 @@ fun scheduleDailyMessage(context: Context) {
         AlarmManager.INTERVAL_DAY, // Repeat every day
         pendingIntent
     )
+}
+
+class ReminderDueDate(
+    context: Context,
+    workParam: WorkerParameters,
+) : Worker(context, workParam) {
+
+    override fun doWork(): Result {
+        showNotification()
+        return Result.success()
+    }
+
+    private fun showNotification() {
+        val notificationManager =
+            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val channelId = "reminder_channel"
+        val channelName = "Reminder Notifications"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val channel = NotificationChannel(
+                channelId, channelName, NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val intent = Intent(applicationContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // ✅ Required for API 31+
+        )
+
+        val notification = NotificationCompat.Builder(applicationContext, channelId)
+            .setSmallIcon(R.drawable.kindly_logo)
+            .setContentTitle("Don't Miss Your Promise!")
+            .setContentText("You have a promise due in 24 hours")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        notificationManager.notify(1, notification)
+    }
 }

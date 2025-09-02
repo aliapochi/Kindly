@@ -95,6 +95,25 @@ class KindlyViewModel @Inject constructor(
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
+    fun scheduleDueDateReminder(context: Context, dueDateMillis: Long) {
+        val currentTimeMillis = System.currentTimeMillis()
+
+        // Calculate delay (24 hours before due date)
+        val reminderTimeMillis = dueDateMillis - TimeUnit.HOURS.toMillis(24)
+        val delayMillis = reminderTimeMillis - currentTimeMillis
+
+        if (delayMillis > 0) { // Ensure we schedule only future reminders
+            val workRequest = OneTimeWorkRequestBuilder<ReminderDueDate>()
+                .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
+                .build()
+
+            WorkManager.getInstance(context).enqueue(workRequest)
+        } else {
+            Log.d("Reminder", "Due date is less than 24 hours away. Skipping reminder.")
+        }
+    }
+
+
 
     fun shareKindly(context: Context, message: String) {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
