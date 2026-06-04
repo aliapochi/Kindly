@@ -152,7 +152,10 @@ fun Dashboard(navController: NavHostController) {
 
 @Composable
 fun ActivePromisesCard(viewModel: KindlyViewModel) {
-    val totalPromises = viewModel.promises.collectAsState()
+    val promises by viewModel.promises.collectAsState()
+    val activeCount = promises.count { !it.isFulfilled }
+    val totalCount = promises.size
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -165,17 +168,38 @@ fun ActivePromisesCard(viewModel: KindlyViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Active Promises",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-                Text(
-                    text = totalPromises.value.size.toString(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 44.sp,
-                    color = Color.White
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = "Active",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                        Text(
+                            text = activeCount.toString(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 36.sp,
+                            color = Color.White
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "Total",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                        Text(
+                            text = totalCount.toString(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 36.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Keep up the momentum!",
                     style = MaterialTheme.typography.bodySmall,

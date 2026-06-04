@@ -52,8 +52,8 @@ fun BannerAd(modifier: Modifier = Modifier) {
                 loadAd(AdRequest.Builder().build())
             }
         },
-        update = { adView ->
-            // Optionally reload ad here if needed on update
+        update = { _ ->
+            // AdView is updated automatically when parameters change
         }
     )
 }
