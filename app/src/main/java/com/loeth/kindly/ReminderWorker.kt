@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import java.util.Calendar
+import androidx.core.content.edit
 
 class ReminderWorker(
     context: Context,
@@ -111,7 +112,7 @@ class NotificationReceiver : BroadcastReceiver() {
         notificationManager.notify(2, notification) // Unique ID for each notification
 
         // Save the new index
-        sharedPreferences.edit().putInt("last_message_index", nextIndex).apply()
+        sharedPreferences.edit { putInt("last_message_index", nextIndex) }
     }
 }
 

@@ -30,7 +30,7 @@ fun BannerAd(modifier: Modifier){
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.BANNER)
-                adUnitId = liveBannerAdId
+                adUnitId = testBannerAdId
                 loadAd(AdRequest.Builder().build())
                 this.adListener = object : AdListener() {
                     override fun onAdClicked() {
