@@ -6,12 +6,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
@@ -27,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,30 +50,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.loeth.kindly.KindlyViewModel
 import com.loeth.kindly.domain.Promise
-import com.loeth.kindly.showInterstitialAd
 import com.loeth.kindly.ui.navigation.BottomNavigationBar
-import com.loeth.kindly.ui.theme.KindlyTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-enum class Categories(val item: String) {
-    FINANCIAL("Financial"),
-    RESOURCES("Resources"),
-    TIME("Time"),
-    EMOTIONAL_SUPPORT("Emotional Support"),
-    HEALTH("Health"),
-    EDUCATION("Education"),
-    TASK("Task"),
-    SOCIAL("Social"),
-    OTHER("Other")
+enum class Categories(val item: String, val color: Color) {
+    FINANCIAL("Financial", Color(0xFFE3F2FD)),
+    RESOURCES("Resources", Color(0xFFF1F8E9)),
+    TIME("Time", Color(0xFFFFF3E0)),
+    EMOTIONAL_SUPPORT("Emotional Support", Color(0xFFFCE4EC)),
+    HEALTH("Health", Color(0xFFE8F5E9)),
+    EDUCATION("Education", Color(0xFFEFEBE9)),
+    TASK("Task", Color(0xFFF3E5F5)),
+    SOCIAL("Social", Color(0xFFE0F2F1)),
+    OTHER("Other", Color(0xFFFAFAFA))
 }
 
 @Composable
@@ -82,65 +85,84 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
     var showAlert by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
     var addedPromise by remember { mutableStateOf<Promise?>(null) }
+    
+    val scrollState = rememberScrollState()
+
     val dueDate = if (selectedDate == "Select Due Date") {
-        0L // Default value if no date is selected
+        0L
     } else {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             .parse(selectedDate)?.time ?: 0L
     }
 
     Scaffold(
-        topBar = { KindlyTopAppBar(navController, "Add A Promise") },
+        topBar = { KindlyTopAppBar(navController, "Create Promise") },
         bottomBar = { BottomNavigationBar(navController) }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF5F5F5)),
-            contentAlignment = Alignment.Center
+                .background(Color(0xFFF8F9FA))
+                .verticalScroll(scrollState)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            // Header Section
+            Column {
+                Text(
+                    text = "What's your commitment?",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1A1C1E)
+                )
+                Text(
+                    text = "Making a promise is the first step to keeping it.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(4.dp)
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    Text(
-                        text = "Add a New Promise",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    OutlinedTextField(
+                    // Title Field
+                    CustomInputField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Promise Title") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        label = "Promise Title",
+                        placeholder = "e.g., Call Mom every Sunday",
+                        singleLine = true
                     )
 
-                    OutlinedTextField(
+                    // Description Field
+                    CustomInputField(
                         value = description,
                         onValueChange = { description = it },
-                        label = { Text("Promise Description") },
+                        label = "Description",
+                        placeholder = "Add more details here...",
                         singleLine = false,
-                        maxLines = 3,
-                        modifier = Modifier.fillMaxWidth()
+                        maxLines = 4
                     )
 
+                    // Select Date
+                    SectionLabel("When is it due?")
                     SelectDueDate(selectedDate) { selectedDate = it }
 
+                    // Select Category
+                    SectionLabel("Category")
                     CategoryMenu(selectedCategory) { selectedCategory = it }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Submit Button
                     Button(
                         onClick = {
                             if (title.isBlank() || description.isBlank() || selectedDate == "Select Due Date" || selectedCategory == "Choose Category") {
@@ -151,162 +173,195 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
                                     title = title,
                                     description = description,
                                     category = selectedCategory,
-                                    dueDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                        .parse(selectedDate)?.time ?: 0L,
+                                    dueDate = dueDate,
                                     isFulfilled = false
                                 )
 
-                                isLoading = true  // Show loading while adding
+                                isLoading = true
                                 viewModel.addPromise(promise)
-
                                 viewModel.scheduleReminder(context)
                                 viewModel.scheduleDueDateReminder(context, dueDate)
 
-                                // Save promise, show share dialog and reset all fields when added successfully
                                 title = ""
                                 description = ""
                                 selectedDate = "Select Due Date"
                                 selectedCategory = "Choose Category"
-                                isLoading = false
                                 addedPromise = promise
                                 showShareDialog = true
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Add Promise", color = Color.White)
+                        Text(
+                            "Create My Promise",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
                     }
-                    //Spacer(modifier = Modifier.height(16.dp))
-
                 }
             }
+        }
 
-            // Show AlertDialog if required fields are empty
-            if (showAlert) {
-                AlertDialog(
-                    onDismissRequest = { showAlert = false },
-                    confirmButton = {
-                        TextButton(onClick = { showAlert = false }) {
-                            Text("OK")
-                        }
-                    },
-                    title = { Text("Missing Fields") },
-                    text = { Text("Please fill in all fields before adding a promise.") }
-                )
-            }
+        // Overlays & Dialogs (Alerts, Share, Loading)
+        if (showAlert) {
+            AlertDialog(
+                onDismissRequest = { showAlert = false },
+                confirmButton = {
+                    TextButton(onClick = { showAlert = false }) { Text("Got it") }
+                },
+                title = { Text("Almost there!") },
+                text = { Text("Please fill in all the details so you can stay committed to your word.") }
+            )
+        }
 
-            // Share AlertDialog after promise is added
-            if (showShareDialog && addedPromise != null) {
-                AlertDialog(
-                    onDismissRequest = { showShareDialog = false },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            viewModel.shareKindly(
-                                context,
-                                """
-    I just added a promise on the Kindly app! 📌
-    
-    ✨ Title: ${addedPromise?.title}
-    📅 Due Date: $selectedDate
-    📂 Category: $selectedCategory
-    
-    You can do that too: https://play.google.com/store/apps/details?id=com.loeth.kindly&pcampaignid=web_share
-""".trimIndent()
-                            )
+        if (showShareDialog && addedPromise != null) {
+            AlertDialog(
+                onDismissRequest = { showShareDialog = false },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.shareKindly(context, "I just added a promise on the Kindly app! 📌\n✨ Title: ${addedPromise?.title}\n📅 Due Date: $selectedDate\nYou can do that too: https://play.google.com/store/apps/details?id=com.loeth.kindly")
                             showShareDialog = false
-                        }) {
-                            Text("Share")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            showShareDialog = false
-                            //showInterstitialAd(context){}
-                        }) {
-                            Text("Dismiss")
-                        }
-                    },
-                    title = { Text("Promise Added!") },
-                    text = { Text("You have successfully added a new promise. Would you like to share it?") }
-                )
-            }
+                        },
+                        shape = RoundedCornerShape(12.dp)
+                    ) { Text("Share Commitment") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showShareDialog = false }) { Text("Dismiss") }
+                },
+                title = { Text("Promise Created! 🌟") },
+                text = { Text("Sharing your promise with others increases your chances of keeping it. Want to share?") }
+            )
+        }
 
-            // Show loading overlay while adding promise
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.3f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CommonProgressSpinner()
-                }
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CommonProgressSpinner()
             }
         }
     }
 
-    // Show Toast & Reset Loading State after promise is added
     LaunchedEffect(promiseAddedEvent) {
         if (promiseAddedEvent) {
-            Toast.makeText(context, "Promise Added", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Promise Saved", Toast.LENGTH_SHORT).show()
             viewModel.resetPromiseAddedEvent()
-
-            isLoading = false // Hide loading
         }
     }
+}
+
+@Composable
+fun CustomInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    singleLine: Boolean,
+    maxLines: Int = 1
+) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1A1C1E),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(placeholder, color = Color.LightGray) },
+            singleLine = singleLine,
+            maxLines = maxLines,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color(0xFFE1E3E5),
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedContainerColor = Color(0xFFFBFBFC),
+                focusedContainerColor = Color.White
+            )
+        )
+    }
+}
+
+@Composable
+fun SectionLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.Bold,
+        color = Color(0xFF1A1C1E),
+        modifier = Modifier.padding(bottom = 0.dp)
+    )
 }
 
 @Composable
 fun CategoryMenu(selectedItem: String, onCategorySelected: (String) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
 
-    Column {
-        OutlinedButton(
-            onClick = { showDialog = true },
-            modifier = Modifier.fillMaxWidth()
+    OutlinedButton(
+        onClick = { showDialog = true },
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1A1C1E))
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = selectedItem)
-            Spacer(Modifier.width(8.dp))
-            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
+            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
         }
+    }
 
-        if (showDialog) {
-            Dialog(onDismissRequest = { showDialog = false }) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0x00000000)) // Semi-transparent background
-                        .clickable { showDialog = false } // Dismiss on outside click
-                ) {
+    if (showDialog) {
+        Dialog(onDismissRequest = { showDialog = false }) {
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                modifier = Modifier.padding(16.dp).fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = "Select Category",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
                     Column(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color.White)
-                            .padding(20.dp)
+                        modifier = Modifier.verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "Select Category",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-
                         Categories.entries.forEach { category ->
-                            Text(
-                                text = category.item,
-                                fontSize = 16.sp,
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(category.color.copy(alpha = 0.5f))
                                     .clickable {
                                         onCategorySelected(category.item)
                                         showDialog = false
                                     }
-                            )
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(8.dp).background(category.color, RoundedCornerShape(4.dp))
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text(text = category.item, fontWeight = FontWeight.Medium)
+                            }
                         }
                     }
                 }
@@ -314,55 +369,43 @@ fun CategoryMenu(selectedItem: String, onCategorySelected: (String) -> Unit) {
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectDueDate(selectedDate: String, onDateSelected: (String) -> Unit) {
     val openDialog = remember { mutableStateOf(false) }
 
-    Column {
-        OutlinedButton(
-            onClick = { openDialog.value = true },
-            modifier = Modifier.fillMaxWidth()
+    OutlinedButton(
+        onClick = { openDialog.value = true },
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1A1C1E))
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Select Date")
-            Spacer(Modifier.width(8.dp))
             Text(text = selectedDate)
+            Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
         }
+    }
 
-        if (openDialog.value) {
-            DatePickerDialog(
-                onDismissRequest = { openDialog.value = false },
-                confirmButton = {
-                    TextButton(onClick = { openDialog.value = false }) {
-                        Text("Confirm")
-                    }
-                }
-            ) {
-                val datePickerState = rememberDatePickerState()
-                DatePicker(state = datePickerState)
-
-                LaunchedEffect(datePickerState.selectedDateMillis) {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        val today = System.currentTimeMillis()
-                        if (millis >= today) {
-                            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                .format(Date(millis))
-                            onDateSelected(date)
-                        }
-                    }
+    if (openDialog.value) {
+        DatePickerDialog(
+            onDismissRequest = { openDialog.value = false },
+            confirmButton = {
+                TextButton(onClick = { openDialog.value = false }) { Text("Confirm") }
+            }
+        ) {
+            val datePickerState = rememberDatePickerState()
+            DatePicker(state = datePickerState)
+            LaunchedEffect(datePickerState.selectedDateMillis) {
+                datePickerState.selectedDateMillis?.let { millis ->
+                    val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(millis))
+                    onDateSelected(date)
                 }
             }
         }
-    }
-}
-
-
-@Preview
-@Composable
-fun AddPromisePreview() {
-    KindlyTheme {
-        //AddPromise(viewModel = FakeViewModel()) // Use a fake ViewModel for preview
     }
 }

@@ -40,6 +40,7 @@ class ReminderWorker(
 
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", "notifications")
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -99,7 +100,17 @@ class NotificationReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", "notifications")
+        }
 
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            1, // Unique request code for daily notification
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.kindly_logo)
@@ -107,6 +118,7 @@ class NotificationReceiver : BroadcastReceiver() {
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
             .build()
 
         notificationManager.notify(2, notification) // Unique ID for each notification
@@ -169,11 +181,12 @@ class ReminderDueDate(
 
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", "notifications")
         }
 
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
-            0,
+            2, // Unique request code
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // ✅ Required for API 31+
         )
@@ -187,6 +200,6 @@ class ReminderDueDate(
             .setContentIntent(pendingIntent)
             .build()
 
-        notificationManager.notify(1, notification)
+        notificationManager.notify(3, notification)
     }
 }

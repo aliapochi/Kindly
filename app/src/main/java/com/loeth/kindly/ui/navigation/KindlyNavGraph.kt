@@ -6,7 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -34,7 +34,10 @@ sealed class Screen(val route: String){
 }
 
 @Composable
-fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
+fun KindlyNavGraph(
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = Screen.SplashScreen.route
+){
     val viewModel: KindlyViewModel = hiltViewModel()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -50,7 +53,7 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
             NavHost(
                 navController = navController,
                 navController.createGraph(
-                    startDestination = Screen.SplashScreen.route
+                    startDestination = startDestination
                 )
                 {
                     composable(Screen.Dashboard.route) { Dashboard(navController) }
@@ -72,4 +75,3 @@ fun KindlyNavGraph(navController: NavHostController = rememberNavController()){
         }
     }
 }
-
