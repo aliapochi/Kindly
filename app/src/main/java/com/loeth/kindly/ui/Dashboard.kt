@@ -141,10 +141,6 @@ fun Dashboard(navController: NavHostController) {
 
             ImpactSummaryCard(viewModel)
 
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            BannerAd(modifier = Modifier.fillMaxWidth())
-            
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

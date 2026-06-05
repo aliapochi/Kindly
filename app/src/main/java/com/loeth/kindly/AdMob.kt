@@ -5,10 +5,8 @@ import android.content.Context
 import android.util.Log
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
@@ -24,12 +22,10 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 @Composable
 fun BannerAd(modifier: Modifier = Modifier) {
     // Use test ID for development, swap to Constants.LIVE_BANNER_ID for production
-    val adUnitId = Constants.TEST_BANNER_ID 
+    val adUnitId = Constants.LIVE_BANNER_ID
 
     AndroidView(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(50.dp),
+        modifier = modifier.fillMaxWidth(),
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.BANNER)
@@ -49,11 +45,15 @@ fun BannerAd(modifier: Modifier = Modifier) {
                     }
                 }
                 
-                loadAd(AdRequest.Builder().build())
+                // Load the ad after the view is attached to the window
+                post {
+                    loadAd(AdRequest.Builder().build())
+                }
             }
         },
-        update = { _ ->
-            // AdView is updated automatically when parameters change
+        update = { _ -> },
+        onRelease = { adView ->
+            adView.destroy()
         }
     )
 }
