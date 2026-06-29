@@ -81,18 +81,20 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
     var selectedCategory by remember { mutableStateOf("Choose Category") }
     val context = LocalContext.current
     val promiseAddedEvent by viewModel.promiseAddedEvent.collectAsState()
-    var isLoading = viewModel.inProgress.value
+    val isLoading by viewModel.inProgress
     var showAlert by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
     var addedPromise by remember { mutableStateOf<Promise?>(null) }
     
     val scrollState = rememberScrollState()
 
-    val dueDate = if (selectedDate == "Select Due Date") {
-        0L
-    } else {
-        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            .parse(selectedDate)?.time ?: 0L
+    val dueDate = remember(selectedDate) {
+        if (selectedDate == "Select Due Date") {
+            0L
+        } else {
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                .parse(selectedDate)?.time ?: 0L
+        }
     }
 
     Scaffold(
@@ -177,7 +179,6 @@ fun AddPromise(viewModel: KindlyViewModel, navController: NavHostController) {
                                     isFulfilled = false
                                 )
 
-                                isLoading = true
                                 viewModel.addPromise(promise)
                                 viewModel.scheduleReminder(context)
                                 viewModel.scheduleDueDateReminder(context, dueDate)

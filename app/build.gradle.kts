@@ -8,14 +8,14 @@ plugins {
 
 android {
     namespace = "com.loeth.kindly"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.loeth.kindly"
         minSdk = 24
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 5
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.concurrent.futures.ktx)
     implementation(libs.play.services.ads)
+    implementation(libs.play.app.update)
+    implementation(libs.play.app.update.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)

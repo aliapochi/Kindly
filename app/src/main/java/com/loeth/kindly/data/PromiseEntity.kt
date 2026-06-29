@@ -24,6 +24,6 @@ fun PromiseEntity.toDomainModel(): Promise {
         category = this.category,
         dueDate = this.dueDate,
         isFulfilled = this.isFulfilled,
-        fulfilledDate = this.fulfilledDate!!
+        fulfilledDate = this.fulfilledDate ?: 0L
     )
 }

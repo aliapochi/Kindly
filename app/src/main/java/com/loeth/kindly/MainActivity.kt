@@ -17,10 +17,15 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var database: PromiseDatabase
 
+    private lateinit var inAppUpdateManager: InAppUpdateManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         scheduleDailyMessage(applicationContext)
+
+        inAppUpdateManager = InAppUpdateManager(this)
+        inAppUpdateManager.checkForUpdate()
 
         setContent {
             KindlyTheme2 {
@@ -30,5 +35,10 @@ class MainActivity : ComponentActivity() {
                 KindlyNavGraph()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        inAppUpdateManager.resumeUpdate()
     }
 }
